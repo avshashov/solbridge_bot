@@ -1,5 +1,5 @@
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
 def upload_photo_kb() -> ReplyKeyboardMarkup:
@@ -46,3 +46,17 @@ def category_kb() -> InlineKeyboardMarkup:
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
+
+
+def confirm_kb():
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Confirm selection', callback_data='confirm'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data='back'))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def anonymous_kb():
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Anonymous author', callback_data='Anonymous author'))
+    return builder.as_markup()

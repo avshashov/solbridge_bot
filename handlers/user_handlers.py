@@ -58,16 +58,27 @@ async def incorrectly_file(message: types.Message) -> None:
 async def set_filename(message: types.Message, state: FSMContext):
     await state.update_data(filename=message.text)
     await state.set_state(Loader.category_state)
-    await message.answer('Beatiful!')
+    await message.answer('Beautiful!')
     await message.answer('Choose a category from the list below:', reply_markup=buttons.category_kb())
 
 
-@router.callback_query(Loader.category_state)
+@router.callback_query(Loader.category_state, ~F.data.in_({'confirm', 'back'}))
 async def choose_category(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(category=callback.data)
-    await state.set_state(Loader.location_state)
-    await callback.message.answer('Where did you take a photo?')
+    await callback.message.edit_text(text=f'Selected: {callback.data}', reply_markup=buttons.confirm_kb())
     await callback.answer()
+
+
+@router.callback_query(Loader.category_state)
+async def confirm_category(callback: types.CallbackQuery, state: FSMContext):
+    if callback.data == 'confirm':
+        await state.set_state(Loader.location_state)
+        await callback.message.edit_text('Where did you take a photo?')
+        await callback.answer()
+    elif callback.data == 'back':
+        await callback.message.edit_text(text='Choose a category from the list below:',
+                                         reply_markup=buttons.category_kb())
+        await callback.answer()
 
 
 @router.message(Loader.category_state)
@@ -83,15 +94,36 @@ async def set_location(message: types.Message, state: FSMContext):
 
 
 @router.message(Loader.camera_state)
-async def set_location(message: types.Message, state: FSMContext):
+async def set_camera(message: types.Message, state: FSMContext):
     await state.update_data(camera=message.text)
     await state.set_state(Loader.author_state)
     await message.answer('Not bad no bad')
-    await message.answer('Now, could you tell me, who made this shot? (Or you can stay anonymous)')
+    await message.answer('Now, could you tell me, who made this shot? (Or you can stay anonymous)',
+                         reply_markup=buttons.anonymous_kb())
+
+
+@router.callback_query(Loader.author_state)
+async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(author=callback.data)
+    await callback.message.answer('Check the correctness of the data')
+
+    data = await state.get_data()
+    text = f'<b>Description</b>: {data["filename"]}' \
+           f'\n<b>Category</b>: {data["category"]}' \
+           f'\n<b>Location</b>: {data["location"]}' \
+           f'\n<b>Camera</b>: {data["camera"]}' \
+           f'\n<b>Artist</b>: {data["author"]}'
+    if data['file'] == 'document':
+        await callback.message.answer_document(document=data["file_id"], caption=text)
+    elif data['file'] == 'photo':
+        await callback.message.answer_photo(photo=data["file_id"], caption=text)
+
+    await state.set_state(Loader.send_state)
+    await callback.message.answer('Press Ok to send', reply_markup=buttons.ok_cancel_kb())
 
 
 @router.message(Loader.author_state)
-async def set_location(message: types.Message, state: FSMContext):
+async def set_author_message(message: types.Message, state: FSMContext):
     await state.update_data(author=message.text)
     await message.answer('Check the correctness of the data')
 

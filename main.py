@@ -6,7 +6,7 @@ from settings import bot_token
 from handlers import user_handlers
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-sol_bot = Bot(token=bot_token)
+sol_bot = Bot(token=bot_token, parse_mode='HTML')
 
 
 async def main(bot):

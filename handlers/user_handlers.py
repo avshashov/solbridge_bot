@@ -33,13 +33,14 @@ router = Router()
 
 @router.message(Command(commands=['start']))
 async def start_command(message: types.Message):
-    await message.answer('Hello. This is a test bot!', reply_markup=buttons.upload_photo_kb())
+    await message.answer('Hello! I am PCS_Bot, and I will help you to share your piece of art with people! 😎',
+                         reply_markup=buttons.upload_photo_kb())
 
 
 @router.message(Text(text=['Upload photo']))
 async def upload_photo(message: types.Message, state: FSMContext):
     await state.set_state(Loader.upload_state)
-    await message.answer('send a photo as a document', reply_markup=buttons.cancel_kb())
+    await message.answer('For beginning, show me your photo', reply_markup=buttons.cancel_kb())
 
 
 @router.message(Text(text=['Cancel']))
@@ -56,7 +57,8 @@ async def get_photo(message: types.Message, state: FSMContext):
         await state.update_data(file_id=message.photo[-1].file_id, file='photo')
 
     await state.set_state(Loader.filename_state)
-    await message.answer('Write the name of the photo')
+    await message.reply('Great!')
+    await message.answer('I think, we should give the name of this piece of art ')
 
 
 @router.message(Loader.upload_state)
@@ -68,6 +70,7 @@ async def incorrectly_file(message: types.Message) -> None:
 async def set_filename(message: types.Message, state: FSMContext):
     await state.update_data(filename=message.text)
     await state.set_state(Loader.category_state)
+    await message.answer('Beatiful!')
     await message.answer('Choose a category')
 
 
@@ -75,7 +78,7 @@ async def set_filename(message: types.Message, state: FSMContext):
 async def choose_category(message: types.Message, state: FSMContext):
     await state.update_data(category=message.text)
     await state.set_state(Loader.location_state)
-    await message.answer('Write a location')
+    await message.answer('Where did you take a photo?')
 
 
 @router.message(Loader.category_state)
@@ -87,14 +90,15 @@ async def choose_category_incorrectly(message: types.Message):
 async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(location=message.text)
     await state.set_state(Loader.camera_state)
-    await message.answer('Write camera model')
+    await message.answer('What is the camera helped you did it?')
 
 
 @router.message(Loader.camera_state)
 async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(camera=message.text)
     await state.set_state(Loader.author_state)
-    await message.answer('Write the author')
+    await message.answer('Not bad no bad')
+    await message.answer('Now, could you tell me, who made this shot? (Or you can stay anonymous)')
 
 
 @router.message(Loader.author_state)
@@ -103,11 +107,11 @@ async def set_location(message: types.Message, state: FSMContext):
     await message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = f'Description: {data["filename"]}' \
-           f'\nCategory: {data["category"]}' \
-           f'\nLocation: {data["location"]}' \
-           f'\nCamera: {data["camera"]}' \
-           f'\nArtist: {data["author"]}'
+    text = f'<b>Description</b>: {data["filename"]}' \
+           f'\n<b>Category</b>: {data["category"]}' \
+           f'\n<b>Location</b>: {data["location"]}' \
+           f'\n<b>Camera</b>: {data["camera"]}' \
+           f'\n<b>Artist</b>: {data["author"]}'
     if data['file'] == 'document':
         await message.answer_document(document=data["file_id"], caption=text)
     elif data['file'] == 'photo':

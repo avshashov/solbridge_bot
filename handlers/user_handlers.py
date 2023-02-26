@@ -16,18 +16,6 @@ class Loader(StatesGroup):
     send_state = State()
 
 
-categories = [
-    'What is South Korea for me',
-    'Student’s life',
-    'The purest feeling in the life',
-    'Urban',
-    'Model photography',
-    'People',
-    'Creativity',
-    'Nature',
-    'Global citizen'
-]
-
 router = Router()
 
 
@@ -71,14 +59,15 @@ async def set_filename(message: types.Message, state: FSMContext):
     await state.update_data(filename=message.text)
     await state.set_state(Loader.category_state)
     await message.answer('Beatiful!')
-    await message.answer('Choose a category')
+    await message.answer('Choose a category from the list below:', reply_markup=buttons.category_kb())
 
 
-@router.message(Loader.category_state, F.text.in_(categories))
-async def choose_category(message: types.Message, state: FSMContext):
-    await state.update_data(category=message.text)
+@router.callback_query(Loader.category_state)
+async def choose_category(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(category=callback.data)
     await state.set_state(Loader.location_state)
-    await message.answer('Where did you take a photo?')
+    await callback.message.answer('Where did you take a photo?')
+    await callback.answer()
 
 
 @router.message(Loader.category_state)

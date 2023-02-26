@@ -48,9 +48,13 @@ async def cancel(message: types.Message, state: FSMContext) -> None:
     await message.answer('Canceled', reply_markup=buttons.upload_photo_kb())
 
 
-@router.message(Loader.upload_state, F.document)
+@router.message(Loader.upload_state, F.content_type.in_({'photo', 'document'}))
 async def get_photo(message: types.Message, state: FSMContext):
-    await state.update_data(file_id=message.document.file_id)
+    if message.document:
+        await state.update_data(file_id=message.document.file_id, file='document')
+    elif message.photo:
+        await state.update_data(file_id=message.photo[-1].file_id, file='photo')
+
     await state.set_state(Loader.filename_state)
     await message.answer('Write the name of the photo')
 
@@ -104,7 +108,10 @@ async def set_location(message: types.Message, state: FSMContext):
            f'\nLocation: {data["location"]}' \
            f'\nCamera: {data["camera"]}' \
            f'\nArtist: {data["author"]}'
-    await message.answer_document(document=data["file_id"], caption=text)
+    if data['file'] == 'document':
+        await message.answer_document(document=data["file_id"], caption=text)
+    elif data['file'] == 'photo':
+        await message.answer_photo(photo=data["file_id"], caption=text)
 
     await state.set_state(Loader.send_state)
     await message.answer('Press Ok to send', reply_markup=buttons.ok_cancel_kb())

@@ -2,8 +2,9 @@ from aiogram import Router, types, F
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-
+from random import choice
 from keybords import buttons
+from bot_phrases import phrases
 
 
 class Loader(StatesGroup):
@@ -51,7 +52,7 @@ async def get_photo(message: types.Message, state: FSMContext):
 
     await state.set_state(Loader.description_state)
     await message.reply('Great!')
-    await message.answer('I think, we should give the name of this piece of art ')
+    await message.answer(choice(phrases.description_phrases))
 
 
 @router.message(Loader.upload_state)
@@ -64,6 +65,7 @@ async def set_description(message: types.Message, state: FSMContext):
     await state.update_data(description=message.text)
     await state.set_state(Loader.category_state)
     await message.answer('Beautiful!')
+    await message.answer(choice(phrases.category_phrases))
     await message.answer('Choose a category from the list below:', reply_markup=buttons.category_kb())
 
 
@@ -80,7 +82,7 @@ async def confirm_category(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(Loader.location_state)
         category = await state.get_data()
         await callback.message.edit_text(f'Selected: {category["category"]}')
-        await callback.message.answer('Where did you take a photo?')
+        await callback.message.answer(choice(phrases.location_phrases))
         await callback.answer()
     elif callback.data == 'Back':
         await callback.message.edit_text(text='Choose a category from the list below:',
@@ -97,7 +99,7 @@ async def choose_category_incorrectly(message: types.Message):
 async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(location=message.text)
     await state.set_state(Loader.camera_state)
-    await message.answer('What is the camera helped you did it?')
+    await message.answer(choice(phrases.camera_phrases))
 
 
 @router.message(Loader.camera_state)
@@ -115,7 +117,7 @@ async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = text_for_message(data)
+    text = await text_for_message(data)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -134,7 +136,7 @@ async def set_author_message(message: types.Message, state: FSMContext):
     await message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = text_for_message(data)
+    text = await text_for_message(data)
 
     if data['file'] == 'document':
         await message.answer_document(document=data["file_id"], caption=text)
@@ -149,7 +151,7 @@ async def set_author_message(message: types.Message, state: FSMContext):
 async def send_photo_to_channel(callback: types.CallbackQuery, state: FSMContext):
     # await message.answer_document(document=message.document.file_id, caption='some text')
     await state.clear()
-    await callback.message.edit_text(text='Done')
+    await callback.message.edit_text(text=choice(phrases.final_phrases))
     await callback.message.answer('😎', reply_markup=buttons.upload_photo_kb())
     await callback.answer()
 
@@ -253,7 +255,7 @@ async def edit_author(message: types.Message, state: FSMContext):
 @router.callback_query(F.data == 'Show')
 async def show_message(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    text = text_for_message(data)
+    text = await text_for_message(data)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -263,15 +265,7 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-# async def text_for_message(data: dict):
-#     text = f'<b>Description</b>: {data["description"]}' \
-#            f'\n<b>Category</b>: {data["category"]}' \
-#            f'\n<b>Location</b>: {data["location"]}' \
-#            f'\n<b>Camera</b>: {data["camera"]}' \
-#            f'\n<b>Artist</b>: {data["author"]}'
-#     return await text
-
-def text_for_message(data: dict) -> str:
+async def text_for_message(data: dict) -> str:
     text = f'<b>Description</b>: {data["description"]}' \
            f'\n<b>Category</b>: {data["category"]}' \
            f'\n<b>Location</b>: {data["location"]}' \

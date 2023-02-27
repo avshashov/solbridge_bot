@@ -115,12 +115,7 @@ async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = f'<b>Description</b>: {data["description"]}' \
-           f'\n<b>Category</b>: {data["category"]}' \
-           f'\n<b>Location</b>: {data["location"]}' \
-           f'\n<b>Camera</b>: {data["camera"]}' \
-           f'\n<b>Artist</b>: {data["author"]}'
-    await state.update_data(text=text)
+    text = text_for_message(data)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -139,12 +134,7 @@ async def set_author_message(message: types.Message, state: FSMContext):
     await message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = f'<b>Description</b>: {data["description"]}' \
-           f'\n<b>Category</b>: {data["category"]}' \
-           f'\n<b>Location</b>: {data["location"]}' \
-           f'\n<b>Camera</b>: {data["camera"]}' \
-           f'\n<b>Artist</b>: {data["author"]}'
-    await state.update_data(text=text)
+    text = text_for_message(data)
 
     if data['file'] == 'document':
         await message.answer_document(document=data["file_id"], caption=text)
@@ -211,14 +201,14 @@ async def edit_description(message: types.Message, state: FSMContext):
     await message.answer('Changed \nSelect new change or press "Back"', reply_markup=buttons.edit_message_kb())
 
 
-@router.callback_query(Loader.edit_category_state, ~F.data.in_({'Confirm', 'Back'}))
+@router.callback_query(Loader.edit_category_state, ~F.data.in_({'Confirm', 'Back', 'Show'}))
 async def edit_category(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(category=callback.data)
     await callback.message.edit_text(text=f'Selected: {callback.data}', reply_markup=buttons.confirm_kb())
     await callback.answer()
 
 
-@router.callback_query(Loader.edit_category_state)
+@router.callback_query(Loader.edit_category_state, F.data.in_({'Confirm', 'Back'}))
 async def confirm_category(callback: types.CallbackQuery, state: FSMContext):
     if callback.data == 'Confirm':
         category = await state.get_data()
@@ -263,14 +253,28 @@ async def edit_author(message: types.Message, state: FSMContext):
 @router.callback_query(F.data == 'Show')
 async def show_message(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    text = f'<b>Description</b>: {data["description"]}' \
-           f'\n<b>Category</b>: {data["category"]}' \
-           f'\n<b>Location</b>: {data["location"]}' \
-           f'\n<b>Camera</b>: {data["camera"]}' \
-           f'\n<b>Artist</b>: {data["author"]}'
+    text = text_for_message(data)
+
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
     elif data['file'] == 'photo':
         await callback.message.answer_photo(photo=data["file_id"], caption=text)
     await callback.message.answer(text='Select change:', reply_markup=buttons.edit_message_kb())
     await callback.answer()
+
+
+# async def text_for_message(data: dict):
+#     text = f'<b>Description</b>: {data["description"]}' \
+#            f'\n<b>Category</b>: {data["category"]}' \
+#            f'\n<b>Location</b>: {data["location"]}' \
+#            f'\n<b>Camera</b>: {data["camera"]}' \
+#            f'\n<b>Artist</b>: {data["author"]}'
+#     return await text
+
+def text_for_message(data: dict) -> str:
+    text = f'<b>Description</b>: {data["description"]}' \
+           f'\n<b>Category</b>: {data["category"]}' \
+           f'\n<b>Location</b>: {data["location"]}' \
+           f'\n<b>Camera</b>: {data["camera"]}' \
+           f'\n<b>Artist</b>: {data["author"]}'
+    return text

@@ -5,7 +5,7 @@ from aiogram import Dispatcher, Bot
 from aiogram.types import BotCommand
 
 from settings import bot_token
-from handlers import user_handlers
+from handlers import user_handlers, admin
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 sol_bot = Bot(token=bot_token, parse_mode='HTML')
@@ -21,6 +21,7 @@ async def set_commands(bot):
 async def main(bot):
     dp = Dispatcher()
     dp.include_router(user_handlers.router)
+    dp.include_router(admin.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await set_commands(bot)
     await dp.start_polling(bot)

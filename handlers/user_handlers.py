@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from random import choice
 from keybords import buttons
-from bot_phrases import phrases
+import phrases
 
 
 class Loader(StatesGroup):
@@ -27,14 +27,13 @@ router = Router()
 
 @router.message(Command(commands=['start']))
 async def start_command(message: types.Message):
-    await message.answer('Hello! \nI am PCS_Bot, and I will help you to share your piece of art with people! 😎',
-                         reply_markup=buttons.upload_photo_kb())
+    await message.answer(choice(phrases.hello_phrases), reply_markup=buttons.upload_photo_kb())
 
 
 @router.message(Text(text=['Upload photo']))
 async def upload_photo(message: types.Message, state: FSMContext):
     await state.set_state(Loader.upload_state)
-    await message.answer('For beginning, show me your photo', reply_markup=buttons.cancel_kb())
+    await message.answer(choice(phrases.upload_photo_phrases), reply_markup=buttons.cancel_kb())
 
 
 @router.message(Text(text=['Cancel']))
@@ -107,7 +106,7 @@ async def set_camera(message: types.Message, state: FSMContext):
     await state.update_data(camera=message.text)
     await state.set_state(Loader.author_state)
     await message.answer('Not bad no bad')
-    await message.answer('Now, could you tell me, who made this shot? (Or you can stay anonymous)',
+    await message.answer(f'{choice(phrases.artist_phrases)} (Or you can stay anonymous)',
                          reply_markup=buttons.anonymous_kb())
 
 
@@ -117,7 +116,7 @@ async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = await text_for_message(data)
+    text = text_for_message(data)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -136,7 +135,7 @@ async def set_author_message(message: types.Message, state: FSMContext):
     await message.answer('Check the correctness of the data')
 
     data = await state.get_data()
-    text = await text_for_message(data)
+    text = text_for_message(data)
 
     if data['file'] == 'document':
         await message.answer_document(document=data["file_id"], caption=text)
@@ -255,7 +254,7 @@ async def edit_author(message: types.Message, state: FSMContext):
 @router.callback_query(F.data == 'Show')
 async def show_message(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    text = await text_for_message(data)
+    text = text_for_message(data)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -265,7 +264,7 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-async def text_for_message(data: dict) -> str:
+def text_for_message(data: dict) -> str:
     text = f'<b>Description</b>: {data["description"]}' \
            f'\n<b>Category</b>: {data["category"]}' \
            f'\n<b>Location</b>: {data["location"]}' \

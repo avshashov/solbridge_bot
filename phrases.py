@@ -171,3 +171,16 @@ hello_phrases = [
     "Hello, human! Let's team up and accomplish some great things today.",
     "Greetings, human! I'm excited to help you with whatever you need."
 ]
+
+help_phrase = "I am a bot created to assist club members with the task of uploading photos. " \
+              "My primary function is to simplify the photo uploading process, " \
+              "making it quicker and more efficient for users." \
+              "\n\nPress the button 'Upload Photo' to start." \
+              "\n\nI must inform you that all photos uploaded through me will be subject to moderation " \
+              "by my owner before being made available to the public. " \
+              "However, I am eager to receive your photos and assist you with uploading them. " \
+              "Please don't hesitate to send your photos to me, " \
+              "and I will do my best to ensure a smooth and " \
+              "efficient uploading process. " \
+              "" \
+              "\n\nMy master can be found at the designated link @vonavikon"

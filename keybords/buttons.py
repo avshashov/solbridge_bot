@@ -28,7 +28,7 @@ def edit_message_kb() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Artist", callback_data="Artist")
         ],
         [
-            InlineKeyboardButton(text="<< Back", callback_data="<< Back"),
+            InlineKeyboardButton(text="<< Back to post", callback_data="<< Back"),
             InlineKeyboardButton(text="Show message", callback_data="Show")
         ]
     ]

@@ -86,3 +86,10 @@ def anonymous_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Anonymous author', callback_data='Anonymous author'))
     return builder.as_markup()
+
+
+def admin_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Publish', callback_data='Publish'))
+    builder.add(InlineKeyboardButton(text='Reject', callback_data='Reject'))
+    return builder.as_markup()

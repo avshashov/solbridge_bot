@@ -22,7 +22,7 @@ async def publish_post(callback: types.CallbackQuery):
 
 
 @router.callback_query(F.data == 'Reject')
-async def publish_post(callback: types.CallbackQuery):
+async def reject_post(callback: types.CallbackQuery):
     await callback.message.delete_reply_markup()
     await callback.message.reply(text='Rejected')
     await callback.answer()

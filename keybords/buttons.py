@@ -2,9 +2,11 @@ from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeybo
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
-def upload_photo_kb() -> ReplyKeyboardMarkup:
+def upload_help_kb() -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardBuilder()
     kb.button(text="Upload photo")
+    kb.button(text="Help")
+    kb.adjust(1)
     return kb.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 

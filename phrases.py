@@ -23,6 +23,7 @@ final_phrases = [
 ]
 
 artist_phrases = [
+    'Now, could you tell me, who made this shot?',
     "Who's the photographer behind this amazing shot?",
     'Who took this incredible photo?',
     "I'm curious, who captured this moment?",
@@ -89,6 +90,7 @@ location_phrases = [
 ]
 
 description_phrases = [
+    'I think, we should give the name of this piece of art',
     "Let's give this artwork a proper name.",
     'It would be great to give this piece of art a name.',
     'We should come up with a name for this beautiful piece of art.',
@@ -135,7 +137,7 @@ category_phrases = [
 ]
 
 upload_photo_phrases = [
-    'Upload the photo.',
+    'For beginning, show me your photo',
     'Share with the world the masterpiece that is your photo.',
     'The world is eagerly awaiting the arrival of your photographic masterpiece.',
     "It's time to give that camera roll a workout and upload your finest shot.",
@@ -147,6 +149,7 @@ upload_photo_phrases = [
 ]
 
 hello_phrases = [
+    'Hello! \nI am PCS_Bot, and I will help you to share your piece of art with people! 😎',
     'Beep boop! Greetings, human!',
     'Hello, human! I am your friendly neighborhood robot.',
     "Good day, human! It's a pleasure to interface with you.",

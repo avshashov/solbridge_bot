@@ -5,6 +5,8 @@ from aiogram.fsm.state import StatesGroup, State
 from random import choice
 from keybords import buttons
 import phrases
+from main import sol_bot
+import settings
 
 
 class Loader(StatesGroup):
@@ -23,6 +25,15 @@ class Loader(StatesGroup):
 
 
 router = Router()
+
+
+# @router.channel_post()
+# async def channel(message: types.Message):
+#     print(message)
+
+# @router.message()
+# async def group(message: types.Message):
+#     print(message)
 
 
 @router.message(Command(commands=['start']))
@@ -117,6 +128,7 @@ async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
 
     data = await state.get_data()
     text = text_for_message(data)
+    await state.update_data(text=text)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)
@@ -136,6 +148,7 @@ async def set_author_message(message: types.Message, state: FSMContext):
 
     data = await state.get_data()
     text = text_for_message(data)
+    await state.update_data(text=text)
 
     if data['file'] == 'document':
         await message.answer_document(document=data["file_id"], caption=text)
@@ -148,7 +161,14 @@ async def set_author_message(message: types.Message, state: FSMContext):
 
 @router.callback_query(Loader.send_state, F.data == 'Ok')
 async def send_photo_to_channel(callback: types.CallbackQuery, state: FSMContext):
-    # await message.answer_document(document=message.document.file_id, caption='some text')
+    data = await state.get_data()
+    if data['file'] == 'document':
+        await sol_bot.send_document(chat_id=settings.group_id, document=data["file_id"], caption=data["text"],
+                                    reply_markup=buttons.admin_kb())
+    elif data['file'] == 'photo':
+        await sol_bot.send_photo(chat_id=settings.group_id, photo=data["file_id"], caption=data["text"],
+                                 reply_markup=buttons.admin_kb())
+
     await state.clear()
     await callback.message.edit_text(text=choice(phrases.final_phrases))
     await callback.message.answer('😎', reply_markup=buttons.upload_photo_kb())
@@ -255,6 +275,7 @@ async def edit_author(message: types.Message, state: FSMContext):
 async def show_message(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     text = text_for_message(data)
+    await state.update_data(text=text)
 
     if data['file'] == 'document':
         await callback.message.answer_document(document=data["file_id"], caption=text)

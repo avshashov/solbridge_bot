@@ -13,7 +13,8 @@ sol_bot = Bot(token=bot_token, parse_mode='HTML')
 
 async def set_commands(bot):
     commands = [
-        BotCommand(command="/start", description="Start")
+        BotCommand(command="/start", description="Start"),
+        BotCommand(command="/help", description="Help")
     ]
     await bot.set_my_commands(commands)
 

@@ -1,3 +1,5 @@
+import os
+
 from aiogram import Router, types, F
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
@@ -6,7 +8,6 @@ from random import choice
 from keybords import buttons
 import phrases
 from main import sol_bot
-import settings
 
 
 class Loader(StatesGroup):
@@ -168,10 +169,10 @@ async def set_author_message(message: types.Message, state: FSMContext):
 async def send_photo_to_group(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     if data['file'] == 'document':
-        await sol_bot.send_document(chat_id=settings.group_id, document=data["file_id"], caption=data["text"],
+        await sol_bot.send_document(chat_id=os.getenv('GROUP_ID'), document=data["file_id"], caption=data["text"],
                                     reply_markup=buttons.admin_kb())
     elif data['file'] == 'photo':
-        await sol_bot.send_photo(chat_id=settings.group_id, photo=data["file_id"], caption=data["text"],
+        await sol_bot.send_photo(chat_id=os.getenv('GROUP_ID'), photo=data["file_id"], caption=data["text"],
                                  reply_markup=buttons.admin_kb())
 
     await state.clear()

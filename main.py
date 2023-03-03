@@ -3,12 +3,15 @@ import logging
 
 from aiogram import Dispatcher, Bot
 from aiogram.types import BotCommand
+import os
+from dotenv import load_dotenv
 
-from settings import bot_token
 from handlers import user_handlers, admin
 
+load_dotenv()
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-sol_bot = Bot(token=bot_token, parse_mode='HTML')
+sol_bot = Bot(token=os.getenv('TOKEN'), parse_mode='HTML')
 
 
 async def set_commands(bot):

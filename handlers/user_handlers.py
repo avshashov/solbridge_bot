@@ -1,13 +1,14 @@
 import os
+from random import choice
 
 from aiogram import Router, types, F
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from random import choice
+
 from keybords import buttons
-import phrases
 from main import sol_bot
+import phrases
 
 
 class Loader(StatesGroup):
@@ -137,9 +138,9 @@ async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(text=text)
 
     if data['file'] == 'document':
-        await callback.message.answer_document(document=data["file_id"], caption=text)
+        await callback.message.answer_document(document=data['file_id'], caption=text)
     elif data['file'] == 'photo':
-        await callback.message.answer_photo(photo=data["file_id"], caption=text)
+        await callback.message.answer_photo(photo=data['file_id'], caption=text)
 
     await state.set_state(Loader.send_state)
     await callback.message.answer('Press "Ok" to send or press "Edit" to edit message',
@@ -157,9 +158,9 @@ async def set_author_message(message: types.Message, state: FSMContext):
     await state.update_data(text=text)
 
     if data['file'] == 'document':
-        await message.answer_document(document=data["file_id"], caption=text)
+        await message.answer_document(document=data['file_id'], caption=text)
     elif data['file'] == 'photo':
-        await message.answer_photo(photo=data["file_id"], caption=text)
+        await message.answer_photo(photo=data['file_id'], caption=text)
 
     await state.set_state(Loader.send_state)
     await message.answer('Press "Ok" to send or press "Edit" to edit message', reply_markup=buttons.ok_edit_kb())
@@ -169,10 +170,10 @@ async def set_author_message(message: types.Message, state: FSMContext):
 async def send_photo_to_group(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     if data['file'] == 'document':
-        await sol_bot.send_document(chat_id=os.getenv('GROUP_ID'), document=data["file_id"], caption=data["text"],
+        await sol_bot.send_document(chat_id=os.getenv('GROUP_ID'), document=data['file_id'], caption=data['text'],
                                     reply_markup=buttons.admin_kb())
     elif data['file'] == 'photo':
-        await sol_bot.send_photo(chat_id=os.getenv('GROUP_ID'), photo=data["file_id"], caption=data["text"],
+        await sol_bot.send_photo(chat_id=os.getenv('GROUP_ID'), photo=data['file_id'], caption=data['text'],
                                  reply_markup=buttons.admin_kb())
 
     await state.clear()
@@ -214,7 +215,7 @@ async def edit_point_message(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(Loader.edit_camera_state)
 
     elif callback.data == 'Artist':
-        await callback.message.edit_text('Write the author or press "Anonymous author',
+        await callback.message.edit_text('Write the author or press "Anonymous author"',
                                          reply_markup=buttons.anonymous_kb())
         await state.set_state(Loader.edit_author_state)
 
@@ -284,9 +285,9 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(text=text)
 
     if data['file'] == 'document':
-        await callback.message.answer_document(document=data["file_id"], caption=text)
+        await callback.message.answer_document(document=data['file_id'], caption=text)
     elif data['file'] == 'photo':
-        await callback.message.answer_photo(photo=data["file_id"], caption=text)
+        await callback.message.answer_photo(photo=data['file_id'], caption=text)
     await callback.message.answer(text='Select change:', reply_markup=buttons.edit_message_kb())
     await callback.answer()
 

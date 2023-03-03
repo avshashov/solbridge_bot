@@ -1,9 +1,9 @@
 import asyncio
+import os
 import logging
 
-from aiogram import Dispatcher, Bot
+from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
-import os
 from dotenv import load_dotenv
 
 from handlers import user_handlers, admin
@@ -16,8 +16,8 @@ sol_bot = Bot(token=os.getenv('TOKEN'), parse_mode='HTML')
 
 async def set_commands(bot):
     commands = [
-        BotCommand(command="/start", description="Start"),
-        BotCommand(command="/help", description="Help")
+        BotCommand(command='/start', description='Start'),
+        BotCommand(command='/help', description='Help')
     ]
     await bot.set_my_commands(commands)
 

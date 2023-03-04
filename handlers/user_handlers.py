@@ -5,9 +5,10 @@ from aiogram import Router, types, F
 from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from dotenv import load_dotenv
 
+from bot import SingleBot
 from keybords import buttons
-from main import sol_bot
 import phrases
 
 
@@ -26,6 +27,8 @@ class Loader(StatesGroup):
     edit_author_state = State()
 
 
+load_dotenv()
+sol_bot = SingleBot()
 router = Router()
 
 

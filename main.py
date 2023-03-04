@@ -1,17 +1,16 @@
 import asyncio
-import os
 import logging
 
-from aiogram import Bot, Dispatcher
+from aiogram import Dispatcher
 from aiogram.types import BotCommand
-from dotenv import load_dotenv
 
-from handlers import user_handlers, admin
-
-load_dotenv()
+from bot import SingleBot
+from handlers.user_handlers import router as uh_router
+from handlers.admin import router as admin_router
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-sol_bot = Bot(token=os.getenv('TOKEN'), parse_mode='HTML')
+
+sol_bot = SingleBot()
 
 
 async def set_commands(bot):
@@ -24,8 +23,8 @@ async def set_commands(bot):
 
 async def main(bot):
     dp = Dispatcher()
-    dp.include_router(user_handlers.router)
-    dp.include_router(admin.router)
+    dp.include_router(uh_router)
+    dp.include_router(admin_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await set_commands(bot)
     await dp.start_polling(bot)

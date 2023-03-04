@@ -1,11 +1,13 @@
 import os
 
-from aiogram import F, Bot, Router, types
+from aiogram import F, Router, types
 from dotenv import load_dotenv
+
+from bot import SingleBot
 
 load_dotenv()
 
-sol_bot = Bot(token=os.getenv('TOKEN'), parse_mode='HTML')
+sol_bot = SingleBot()
 router = Router()
 
 

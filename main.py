@@ -8,7 +8,7 @@ from bot import SingleBot
 from handlers.user_handlers import router as uh_router
 from handlers.admin import router as admin_router
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 sol_bot = SingleBot()
 

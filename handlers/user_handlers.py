@@ -32,15 +32,6 @@ sol_bot = SingleBot()
 router = Router()
 
 
-# @router.channel_post()
-# async def channel(message: types.Message):
-#     print(message)
-
-# @router.message()
-# async def group(message: types.Message):
-#     print(message)
-
-
 @router.message(Command(commands=['start']))
 async def start_command(message: types.Message):
     await message.answer(choice(phrases.hello_phrases), reply_markup=buttons.upload_help_kb())

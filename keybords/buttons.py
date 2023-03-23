@@ -2,12 +2,14 @@ from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeybo
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
-def upload_help_kb() -> ReplyKeyboardMarkup:
+def main_menu_kb() -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardBuilder()
     kb.button(text='Upload photo')
+    kb.button(text='Photo Album')
+    kb.button(text='Order a book')
     kb.button(text='Help')
     kb.adjust(1)
-    return kb.as_markup(resize_keyboard=True, one_time_keyboard=False)
+    return kb.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
 def cancel_kb() -> ReplyKeyboardMarkup:
@@ -94,4 +96,41 @@ def admin_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Publish', callback_data='Publish'))
     builder.add(InlineKeyboardButton(text='Reject', callback_data='Reject'))
+    return builder.as_markup()
+
+
+def yes_no_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Yes', callback_data='Yes'))
+    builder.add(InlineKeyboardButton(text='No no no', callback_data='No'))
+    return builder.as_markup()
+
+
+def change_data_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Продолжить', callback_data='Next'))
+    builder.add(InlineKeyboardButton(text='Изменить данные', callback_data='Change'))
+    return builder.as_markup()
+
+
+def choose_user_data_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Name', callback_data='Name'))
+    builder.add(InlineKeyboardButton(text='Email', callback_data='Email'))
+    builder.add(InlineKeyboardButton(text='Instagram', callback_data='Instagram'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data='Back change'))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def change_url_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Продолжить', callback_data='Next url'))
+    builder.add(InlineKeyboardButton(text='Изменить данные', callback_data='Change url'))
+    return builder.as_markup()
+
+
+def order_photo_album_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Order the Photo Album', callback_data='Order the Photo Album'))
     return builder.as_markup()

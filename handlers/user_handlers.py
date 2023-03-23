@@ -34,12 +34,12 @@ router = Router()
 
 @router.message(Command(commands=['start']))
 async def start_command(message: types.Message):
-    await message.answer(choice(phrases.hello_phrases), reply_markup=buttons.upload_help_kb())
+    await message.answer(choice(phrases.hello_phrases), reply_markup=buttons.main_menu_kb())
 
 
 @router.message(Command(commands=['help']))
 async def help_command(message: types.Message):
-    await message.answer(phrases.help_phrase, reply_markup=buttons.upload_help_kb())
+    await message.answer(phrases.help_phrase, reply_markup=buttons.main_menu_kb())
 
 
 @router.message(Text(text=['Upload photo']))
@@ -51,7 +51,7 @@ async def upload_photo(message: types.Message, state: FSMContext):
 @router.message(Text(text=['Cancel']))
 async def cancel(message: types.Message, state: FSMContext):
     await state.clear()
-    await message.answer('Canceled', reply_markup=buttons.upload_help_kb())
+    await message.answer('Canceled', reply_markup=buttons.main_menu_kb())
 
 
 @router.message(Loader.upload_state, F.content_type.in_({'photo', 'document'}))
@@ -172,7 +172,7 @@ async def send_photo_to_group(callback: types.CallbackQuery, state: FSMContext):
 
     await state.clear()
     await callback.message.edit_text(text=choice(phrases.final_phrases))
-    await callback.message.answer('😎', reply_markup=buttons.upload_help_kb())
+    await callback.message.answer('😎', reply_markup=buttons.main_menu_kb())
     await callback.answer()
 
 
@@ -288,7 +288,7 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(Text(text=['Help']))
 async def help_button(message: types.Message):
-    await message.answer(phrases.help_phrase, reply_markup=buttons.upload_help_kb())
+    await message.answer(phrases.help_phrase, reply_markup=buttons.main_menu_kb())
 
 
 def text_for_message(data: dict) -> str:

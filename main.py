@@ -7,8 +7,12 @@ from aiogram.types import BotCommand
 from bot import SingleBot
 from handlers.user_handlers import router as uh_router
 from handlers.admin import router as admin_router
+from handlers.photoalbum import router as phalbum_router
+from solbot_db.db_orm import BotDB
+from solbot_db.models import create_tables
 
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 sol_bot = SingleBot()
 
@@ -22,9 +26,11 @@ async def set_commands(bot):
 
 
 async def main(bot):
+    create_tables(BotDB().engine)
     dp = Dispatcher()
     dp.include_router(uh_router)
     dp.include_router(admin_router)
+    dp.include_router(phalbum_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await set_commands(bot)
     await dp.start_polling(bot)

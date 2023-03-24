@@ -9,24 +9,24 @@ class BotDB:
         DSN = 'sqlite:///sqlite3.db'
         self.engine = sq.create_engine(DSN, echo=False)
 
-    def user_is_blocked(self, user_id) -> bool:
-        with Session(bind=self.engine) as session:
-            user = session.query(Users).filter(Users.user_id == user_id).first()
+    # def user_is_blocked(self, user_id) -> bool:
+    #     with Session(bind=self.engine) as session:
+    #         user = session.query(Users).filter(Users.user_id == user_id).first()
+    #
+    #         return True if user else False
 
-            return True if user else False
+    # def add_user_to_blacklist(self, user_id, username) -> None:
+    #     with Session(bind=self.engine) as session:
+    #         user = session.query(Users).filter(Users.user_id == user_id).first()
+    #         if not user:
+    #             session.add(Users(user_id=user_id, username=username))
+    #             session.commit()
 
-    def add_user_to_blacklist(self, user_id, username) -> None:
-        with Session(bind=self.engine) as session:
-            user = session.query(Users).filter(Users.user_id == user_id).first()
-            if not user:
-                session.add(Users(user_id=user_id, username=username))
-                session.commit()
-
-    def del_user_from_blacklist(self, user_id) -> None:
-        with Session(bind=self.engine) as session:
-            user = session.query(Users).filter(Users.user_id == user_id).first()
-            session.delete(user)
-            session.commit()
+    # def del_user_from_blacklist(self, user_id) -> None:
+    #     with Session(bind=self.engine) as session:
+    #         user = session.query(Users).filter(Users.user_id == user_id).first()
+    #         session.delete(user)
+    #         session.commit()
 
     def add_user_info(self, user_id, name, surname, email, instagram) -> None:
         with Session(bind=self.engine) as session:
@@ -50,8 +50,15 @@ class BotDB:
                                                              Orders.open == True).first()
         return order_id[0]
 
+    def cancel_order(self, user_id) -> int:
+        with Session(bind=self.engine) as session:
+            order = session.query(Orders).filter(Orders.user_id == user_id, Orders.open == True).first()
+            order_id = order.order_id
+            order.open = False
+            session.commit()
+        return order_id
+
     def get_user_info(self, user_id) -> Users:
-        user_data = {}
         with Session(bind=self.engine) as session:
             user = session.query(Users).filter(Users.user_id == user_id).first()
             return user

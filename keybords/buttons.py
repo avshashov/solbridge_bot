@@ -99,11 +99,19 @@ def admin_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def yes_no_kb() -> InlineKeyboardMarkup:
+def yes_back_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Yes', callback_data='Yes'))
-    builder.add(InlineKeyboardButton(text='No no no', callback_data='No'))
+    builder.add(InlineKeyboardButton(text='Back to main menu', callback_data='Main menu'))
     return builder.as_markup()
+
+
+def cancel_order_kb() -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardBuilder()
+    kb.button(text='Cancel the order')
+    kb.button(text='Cancel')
+    kb.adjust(1)
+    return kb.as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def change_data_kb() -> InlineKeyboardMarkup:
@@ -133,4 +141,11 @@ def change_url_kb() -> InlineKeyboardMarkup:
 def order_photo_album_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Order the Photo Album', callback_data='Order the Photo Album'))
+    return builder.as_markup()
+
+
+def payment_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='In Cash', callback_data='In Cash'))
+    builder.add(InlineKeyboardButton(text='Bank Account', callback_data='Bank Account'))
     return builder.as_markup()

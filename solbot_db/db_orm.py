@@ -55,6 +55,7 @@ class BotDB:
             order = session.query(Orders).filter(Orders.user_id == user_id, Orders.open == True).first()
             order_id = order.order_id
             order.open = False
+            order.canceled = True
             session.commit()
         return order_id
 

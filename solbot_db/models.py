@@ -29,6 +29,7 @@ class Orders(Base):
     created_at = mapped_column(sq.DateTime, default=datetime.now())
     open = mapped_column(sq.Boolean, default=True)
     paid = mapped_column(sq.Boolean, default=False)
+    canceled = mapped_column(sq.Boolean, default=False)
     url = mapped_column(sq.Text)
 
 

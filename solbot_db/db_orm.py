@@ -1,6 +1,8 @@
 import sqlalchemy as sq
+import sqlalchemy.exc
 from sqlalchemy.orm import Session
 from solbot_db.models import Users, Orders, Blacklist, Admins, create_tables
+from utils import get_hash
 
 
 class BotDB:
@@ -28,12 +30,12 @@ class BotDB:
     #         session.delete(user)
     #         session.commit()
 
-    def add_user_info(self, user_id, name, surname, email, instagram) -> None:
-        with Session(bind=self.engine) as session:
-            user = session.query(Users).filter(Users.user_id == user_id).first()
-            if not user:
-                session.add(Users(user_id=user_id, name=name, surname=surname, email=email, instagram=instagram))
-                session.commit()
+    # def add_user_info(self, user_id, name, surname, email, instagram) -> None:
+    #     with Session(bind=self.engine) as session:
+    #         user = session.query(Users).filter(Users.user_id == user_id).first()
+    #         if not user:
+    #             session.add(Users(user_id=user_id, name=name, surname=surname, email=email, instagram=instagram))
+    #             session.commit()
 
     def order_exists(self, user_id) -> bool:
         with Session(bind=self.engine) as session:
@@ -43,12 +45,17 @@ class BotDB:
             return True if order else False
 
     def create_order(self, user_id, url) -> int:
-        with Session(bind=self.engine) as session:
-            session.add(Orders(user_id=user_id, url=url))
-            session.commit()
-            order_id = session.query(Orders.order_id).filter(Orders.user_id == user_id, Orders.url == url,
-                                                             Orders.open == True).first()
-        return order_id[0]
+        while True:
+            with Session(bind=self.engine) as session:
+                try:
+                    hash_id = get_hash()
+                    session.add(Orders(order_id=hash_id, user_id=user_id, url=url))
+                    session.commit()
+                    order_id = session.query(Orders.order_id).filter(Orders.user_id == user_id, Orders.url == url,
+                                                                     Orders.open == True).first()
+                    return order_id[0]
+                except sqlalchemy.exc.IntegrityError:
+                    continue
 
     def cancel_order(self, user_id) -> int:
         with Session(bind=self.engine) as session:

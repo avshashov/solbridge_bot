@@ -92,8 +92,8 @@ def yes_back_kb() -> InlineKeyboardMarkup:
 
 def change_data_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.add(InlineKeyboardButton(text='Продолжить', callback_data='Next'))
-    builder.add(InlineKeyboardButton(text='Изменить данные', callback_data='Change'))
+    builder.add(InlineKeyboardButton(text='Continue', callback_data='Next'))
+    builder.add(InlineKeyboardButton(text='Edit', callback_data='Change'))
     return builder.as_markup()
 
 
@@ -109,8 +109,8 @@ def choose_user_data_kb() -> InlineKeyboardMarkup:
 
 def change_url_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.add(InlineKeyboardButton(text='Продолжить', callback_data='Next url'))
-    builder.add(InlineKeyboardButton(text='Изменить данные', callback_data='Change url'))
+    builder.add(InlineKeyboardButton(text='Everything is cool', callback_data='Next url'))
+    builder.add(InlineKeyboardButton(text='Edit a link', callback_data='Change url'))
     return builder.as_markup()
 
 

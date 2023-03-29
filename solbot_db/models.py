@@ -24,7 +24,8 @@ class Users(Base):
 class Orders(Base):
     __tablename__ = 'orders'
 
-    order_id = mapped_column(sq.Integer, primary_key=True)
+    id = mapped_column(sq.Integer, primary_key=True)
+    order_id = mapped_column(sq.Text, unique=True)
     user_id = mapped_column(sq.BigInteger, sq.ForeignKey('users.user_id'), nullable=False)
     created_at = mapped_column(sq.DateTime, default=datetime.now())
     open = mapped_column(sq.Boolean, default=True)

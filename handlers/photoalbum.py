@@ -19,7 +19,6 @@ class UserData(StatesGroup):
     email_state = State()
     instagram_state = State()
     cancel_order_state = State()
-    # payment_state = State()
 
 
 load_dotenv()
@@ -60,7 +59,7 @@ async def order_photo_album(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.message(UserData.cancel_order_state, Text(text=['Cancel the order']))
+@router.message(UserData.cancel_order_state, Text(text=['Undo Purchase']))
 async def cancel_order(message: types.Message, state: FSMContext):
     order_id = BotDB().cancel_order(user_id=message.from_user.id)
     await message.answer(text=f'Order №<b>{order_id}</b> cancelled', reply_markup=default_buttons.main_menu_kb())
@@ -161,15 +160,17 @@ async def confirm_or_change_url(callback: types.CallbackQuery, state: FSMContext
     if callback.data == 'Next url':
         url = await state.get_data()
         order_id = BotDB().create_order(user_id=callback.from_user.id, url=url['url'])
-        await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>'
-                                              f'\n\nRight now, we have to decide how you going to pay for that.',
-                                         reply_markup=callback_buttons.payment_kb())
+        await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')
+        await callback.message.answer(text=f'Right now, we have to decide how are you going '
+                                           f'to pay for your photo album.',
+                                      reply_markup=callback_buttons.payment_kb())
         await callback.answer()
-        # await state.set_state(UserData.payment_state)
+
     if callback.data == 'Change url':
         await state.set_state(UserData.url_state)
         await callback.message.edit_text(
-            text='Right now, could you send me the public link '
+            text='No problem.'
+                 '\n\nRight now, could you send me the public link '
                  'for your google drive with your photos (Maximum 30 photos).')
         await callback.answer()
 

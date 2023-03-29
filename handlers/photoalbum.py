@@ -42,18 +42,16 @@ async def order_photo_album(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.edit_text(
             text='Sorry, but according to my data, you already applied for Photoalbum, do you want to cancel your '
                  'request and do it again?')
-        await callback.message.answer(text='Нажмите необходимую кнопку', reply_markup=default_buttons.cancel_order_kb())
+        await callback.message.answer(text='Choose an action', reply_markup=default_buttons.cancel_order_kb())
         await state.set_state(UserData.cancel_order_state)
 
     else:
-        await callback.message.answer(text='Этап формирования заказа', reply_markup=default_buttons.cancel_kb())
+        await callback.message.answer(text='Order formation stage', reply_markup=default_buttons.cancel_kb())
 
         if BotDB().user_exists(callback.from_user.id):
             user = BotDB().get_user_info(callback.from_user.id)
-            await callback.message.answer(text=f'Сверяем пользовательские данные:'
-                                               f'\n\nName: {user.name}'
-                                               f'\nEmail: {user.email}'
-                                               f'\nInstagram: {user.instagram}',
+            await callback.message.answer(text=f'Please check all your information:'
+                                               f'{text_user_info(user.name, user.email, user.instagram)}',
                                           reply_markup=callback_buttons.change_data_kb())
 
         else:
@@ -65,7 +63,7 @@ async def order_photo_album(callback: types.CallbackQuery, state: FSMContext):
 @router.message(UserData.cancel_order_state, Text(text=['Cancel the order']))
 async def cancel_order(message: types.Message, state: FSMContext):
     order_id = BotDB().cancel_order(user_id=message.from_user.id)
-    await message.answer(text=f'Заказ №<b>{order_id}</b> отменен', reply_markup=default_buttons.main_menu_kb())
+    await message.answer(text=f'Order №<b>{order_id}</b> cancelled', reply_markup=default_buttons.main_menu_kb())
     await state.clear()
 
 
@@ -81,28 +79,28 @@ async def get_user_name(message: types.Message, state: FSMContext):
 async def get_user_name(message: types.Message, state: FSMContext):
     await state.update_data(email=message.text)
     await state.set_state(UserData.instagram_state)
-    await message.reply(text='Affirmative')
-    await message.answer(text='I need also your instagram. Just only as second option to send your important messages')
+    await message.reply(text='Cool')
+    await message.answer(text='I need also your instagram. '
+                              'Just only as second option to send your important messages')
 
 
 @router.message(UserData.instagram_state)
 async def get_user_name(message: types.Message, state: FSMContext):
     await state.update_data(instagram=message.text)
     await state.set_state(UserData.instagram_state)
-    await message.reply(text='Cool')
+    await message.reply(text='Thanks')
     data = await state.get_data()
     BotDB().create_user(user_id=message.from_user.id, name=data['name'], username=message.from_user.username,
                         email=data['email'], instagram=data['instagram'])
-    await message.answer(text=f'Сверяем пользовательские данные:'
-                              f'\n\nName: {data["name"]}'
-                              f'\nEmail: {data["email"]}'
-                              f'\nInstagram: {data["instagram"]}', reply_markup=callback_buttons.change_data_kb())
+    await message.answer(text=f'Please check all your information:'
+                              f'{text_user_info(data["name"], data["email"], data["instagram"])}',
+                         reply_markup=callback_buttons.change_data_kb())
     await state.clear()
 
 
 @router.callback_query(F.data == 'Change')
 async def change_user_data(callback: types.CallbackQuery):
-    await callback.message.edit_text(text=f'Selected change', reply_markup=callback_buttons.choose_user_data_kb())
+    await callback.message.edit_text(text=f'Selected change:', reply_markup=callback_buttons.choose_user_data_kb())
     await callback.answer()
 
 
@@ -110,7 +108,7 @@ async def change_user_data(callback: types.CallbackQuery):
 async def choose_category(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UserData.data_state)
     await state.update_data(category=callback.data)
-    await callback.message.edit_text(text=f'Введите новое {callback.data}')
+    await callback.message.edit_text(text=f'Send me your {callback.data}')
     await callback.answer()
 
 
@@ -127,20 +125,17 @@ async def change_selected_category(message: types.Message, state: FSMContext):
         BotDB().change_user_data(user_id=user_id, instagram=value)
 
     user = BotDB().get_user_info(message.from_user.id)
-    await message.answer(text=f'Изменено. Сверяем пользовательские данные:'
-                              f'\n\nName: {user.name}'
-                              f'\nEmail: {user.email}'
-                              f'\nInstagram: {user.instagram}', reply_markup=callback_buttons.change_data_kb())
+    await message.answer(text=f'Changed. Please check all your information:'
+                              f'{text_user_info(user.name, user.email, user.instagram)}',
+                         reply_markup=callback_buttons.change_data_kb())
     await state.clear()
 
 
 @router.callback_query(F.data == 'Back change')
 async def return_to_selected_category(callback: types.CallbackQuery):
     user = BotDB().get_user_info(callback.from_user.id)
-    await callback.message.edit_text(text=f'Сверяем пользовательские данные:'
-                                          f'\n\nName: {user.name}'
-                                          f'\nEmail: {user.email}'
-                                          f'\nInstagram: {user.instagram}',
+    await callback.message.edit_text(text=f'Please check all your information:'
+                                          f'{text_user_info(user.name, user.email, user.instagram)}',
                                      reply_markup=callback_buttons.change_data_kb())
     await callback.answer()
 
@@ -148,7 +143,8 @@ async def return_to_selected_category(callback: types.CallbackQuery):
 @router.callback_query(F.data == 'Next')
 async def request_user_url(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UserData.url_state)
-    await callback.message.edit_text(text='Введите ссылку на файл')
+    await callback.message.edit_text(text='Right now, could you send me the public link '
+                                          'for your Google Drive with your photos (Maximum 30 photos).')
     await callback.answer()
 
 
@@ -156,7 +152,8 @@ async def request_user_url(callback: types.CallbackQuery, state: FSMContext):
 async def get_user_url(message: types.Message, state: FSMContext):
     await state.update_data(url=message.text)
     await state.set_state(UserData.confirm_url_state)
-    await message.answer(text='Проверьте правильность ссылки', reply_markup=callback_buttons.change_url_kb())
+    await message.answer(text='Please be sure about, I strongly recommend you to check it.',
+                         reply_markup=callback_buttons.change_url_kb())
 
 
 @router.callback_query(UserData.confirm_url_state, F.data.in_({'Next url', 'Change url'}))
@@ -164,14 +161,16 @@ async def confirm_or_change_url(callback: types.CallbackQuery, state: FSMContext
     if callback.data == 'Next url':
         url = await state.get_data()
         order_id = BotDB().create_order(user_id=callback.from_user.id, url=url['url'])
-        await callback.message.edit_text(text=f'Great! Номер заказа: <b>{order_id}</b>'
+        await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>'
                                               f'\n\nRight now, we have to decide how you going to pay for that.',
                                          reply_markup=callback_buttons.payment_kb())
         await callback.answer()
         # await state.set_state(UserData.payment_state)
     if callback.data == 'Change url':
         await state.set_state(UserData.url_state)
-        await callback.message.edit_text(text='Введите ссылку на файл')
+        await callback.message.edit_text(
+            text='Right now, could you send me the public link '
+                 'for your google drive with your photos (Maximum 30 photos).')
         await callback.answer()
 
 
@@ -182,7 +181,14 @@ async def choose_payment_method(callback: types.CallbackQuery):
     if callback.data == 'Bank Account':
         await callback.message.edit_text(text='You can just transfer your money to our photo club bank '
                                               'account: 64791074681307'
-                                              '\n\nWhen you upload it, please send to @yusungchoi the screenshot of your '
+                                              '\n\nWhen you upload it, '
+                                              'please send to @yusungchoi the screenshot of your '
                                               'transaction.')
     await callback.message.answer(text='👌', reply_markup=default_buttons.main_menu_kb())
     await callback.answer()
+
+
+def text_user_info(name, email, instagram):
+    return f'\n\n<b>Name</b>: {name} ' \
+           f'\n<b>Email</b>: {email} ' \
+           f'\n<b>Instagram</b>: {instagram}'

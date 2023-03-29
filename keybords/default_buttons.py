@@ -20,7 +20,7 @@ def cancel_kb() -> ReplyKeyboardMarkup:
 
 def cancel_order_kb() -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardBuilder()
-    kb.button(text='Cancel the order')
+    kb.button(text='Undo Purchase')
     kb.button(text='Cancel')
     kb.adjust(1)
     return kb.as_markup(resize_keyboard=True, one_time_keyboard=False)

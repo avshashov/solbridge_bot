@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import sqlalchemy as sq
 import sqlalchemy.exc
 from sqlalchemy.orm import Session
@@ -39,8 +41,8 @@ class BotDB:
 
     def order_exists(self, user_id) -> bool:
         with Session(bind=self.engine) as session:
-            order = session.query(Orders.order_id).join(Users).filter(Users.user_id == user_id, Orders.open == True,
-                                                                      Orders.paid == False).first()
+            order = session.query(Orders.order_id).filter(Orders.user_id == user_id, Orders.open == True,
+                                                          Orders.paid == False).first()
 
             return True if order else False
 
@@ -92,3 +94,16 @@ class BotDB:
         with Session(bind=self.engine) as session:
             session.add(Users(user_id=user_id, name=name, username=username, email=email, instagram=instagram))
             session.commit()
+
+    def order_message_for_admin(self, order_id) -> str:
+        with Session(bind=self.engine) as session:
+            users_order = session.query(Orders.created_at, Users.name).join(Users).filter(Orders.order_id ==
+                                                                                          order_id).first()
+            name = users_order.name
+            date = users_order.created_at.strftime('%H:%M %d.%m.%Y')
+
+            text = f'\n<b>Order</b>: {order_id}' \
+                   f'\n<b>Name</b>: {name}' \
+                   f'\n<b>Created at</b>: {date}'
+            return text
+

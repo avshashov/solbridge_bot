@@ -62,7 +62,11 @@ async def order_photo_album(callback: types.CallbackQuery, state: FSMContext):
 @router.message(UserData.cancel_order_state, Text(text=['Undo Purchase']))
 async def cancel_order(message: types.Message, state: FSMContext):
     order_id = BotDB().cancel_order(user_id=message.from_user.id)
-    await message.answer(text=f'Order №<b>{order_id}</b> cancelled', reply_markup=default_buttons.main_menu_kb())
+    text = BotDB().order_message_for_admin(order_id=order_id)
+
+    await sol_bot.send_message(chat_id=os.getenv('GROUP_ID'), text=f'[CANCELLED]'
+                                                                   f'\n{text}')
+    await message.answer(text=f'Order №<b>{order_id}</b> is cancelled', reply_markup=default_buttons.main_menu_kb())
     await state.clear()
 
 
@@ -160,6 +164,12 @@ async def confirm_or_change_url(callback: types.CallbackQuery, state: FSMContext
     if callback.data == 'Next url':
         url = await state.get_data()
         order_id = BotDB().create_order(user_id=callback.from_user.id, url=url['url'])
+
+        text = BotDB().order_message_for_admin(order_id=order_id)
+
+        await sol_bot.send_message(chat_id=os.getenv('GROUP_ID'), text=f'[CREATED]'
+                                                                       f'\n{text}')
+
         await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')
         await callback.message.answer(text=f'Right now, we have to decide how are you going '
                                            f'to pay for your photo album.',
@@ -181,10 +191,11 @@ async def choose_payment_method(callback: types.CallbackQuery):
         await callback.message.edit_text(text='To pay in cash, please contact with @yusungchoi')
     if callback.data == 'Bank Account':
         await callback.message.edit_text(text='You can just transfer your money to our photo club bank '
-                                              'account: 64791074681307'
+                                              'account.'
                                               '\n\nWhen you upload it, '
                                               'please send to @yusungchoi the screenshot of your '
                                               'transaction.')
+        await callback.message.answer(text='<b>64791074681307</b>')
     await callback.message.answer(text='👌', reply_markup=default_buttons.main_menu_kb())
     await callback.answer()
 

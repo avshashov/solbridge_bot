@@ -184,3 +184,39 @@ help_phrase = "I am a bot created to assist club members with the task of upload
               "efficient uploading process. " \
               "" \
               "\n\nMy master can be found at the designated link @vonavikon"
+
+order_phrases = {
+    'album': "Currently, we are offering a photo album with 30 of your photos to preserve your memories. " \
+             "This is a great way to remember the good old days of your life's chapters." \
+             "\n\nCurrent price is 18.000 ₩ for 1 photo album and 30 photos." \
+             "\n\nWe will make everything and will give personally to you." \
+             "\n\nIf you are interested, please press the button “Order the Photo Album”",
+
+    'book': "Currently, we are offering the 2nd edition of the PCS Book, "
+            "featuring the best photos from the 1st and 2nd seasons of the Photography Club."
+            "\n\nThis book is a limited edition and exclusive to our customers." \
+            "\n\nThe current price for one book with 95 pages of photos is 70.000 ₩." \
+            "\n\nWe will take care of everything and personally deliver the book to you." \
+            "\n\nIf you are interested, please click the button “Order the PCS Book“.",
+
+    'exists_album': 'Sorry, but according to my data, you already applied for Photoalbum, '
+                    'do you want to cancel your request and do it again?',
+
+    'exists_book': 'Sorry, but according to my data, you already applied for 2th Edition of PCS Book, '
+                   'do you want to cancel your request and do it again?',
+
+    'album_payment': 'Right now, we have to decide how are you going to pay for your photo album.',
+
+    'book_payment': 'Due to the peculiarities of working with the printing house, '
+                    'we are only able to accept prepayment for orders. '
+                    '\n\nTo complete your order, you will need to pay in advance. '
+                    '\n\nPlease let us know how you would like to make the payment.',
+
+    'payment_cash': 'To pay in cash, please contact with @yusungchoi',
+
+    'payment_bank': 'You can just transfer your money to our photo club bank account.'
+                    '\n\nWhen you upload it, please send to @yusungchoi the screenshot of your transaction.',
+
+    'drive_link': 'Right now, could you send me the public link for your Google Drive '
+                  'with your photos (Maximum 30 photos).'
+}

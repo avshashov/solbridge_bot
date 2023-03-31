@@ -26,12 +26,13 @@ class Orders(Base):
 
     id = mapped_column(sq.Integer, primary_key=True)
     order_id = mapped_column(sq.Text, unique=True)
+    product = mapped_column(sq.String(5), nullable=False)
     user_id = mapped_column(sq.BigInteger, sq.ForeignKey('users.user_id'), nullable=False)
     created_at = mapped_column(sq.DateTime, default=datetime.now())
     open = mapped_column(sq.Boolean, default=True)
     paid = mapped_column(sq.Boolean, default=False)
     canceled = mapped_column(sq.Boolean, default=False)
-    url = mapped_column(sq.Text)
+    url = mapped_column(sq.Text, nullable=True)
 
 
 class Blacklist(Base):

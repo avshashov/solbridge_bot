@@ -34,7 +34,10 @@ router = Router()
 
 @router.message(Command(commands=['start']))
 async def start_command(message: types.Message):
-    await message.answer(choice(phrases.hello_phrases), reply_markup=default_buttons.main_menu_kb())
+    if message.chat.id == int(os.getenv('GROUP_ID')):
+        await message.answer(text='Welcome to the admin group', reply_markup=default_buttons.admin_menu_kb())
+    else:
+        await message.answer(choice(phrases.hello_phrases), reply_markup=default_buttons.main_menu_kb())
 
 
 @router.message(Command(commands=['help']))

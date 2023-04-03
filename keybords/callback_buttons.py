@@ -135,20 +135,64 @@ def payment_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def unpaid_orders_kb() -> InlineKeyboardMarkup:
+def orders_category_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    unpaid_orders = BotDB().get_unpaid_orders()
+    builder.add(InlineKeyboardButton(text='Photo album', callback_data='admin album'))
+    builder.add(InlineKeyboardButton(text='Book', callback_data='admin book'))
+    return builder.as_markup()
 
-    for order in unpaid_orders:
+
+def open_closed_orders_kb(product) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Open', callback_data=f'open {product}'))
+    builder.add(InlineKeyboardButton(text='Closed', callback_data=f'closed {product}'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data=f'back {product}'))
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def paid_unpaid_orders_kb(product) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Paid', callback_data=f'paid {product}'))
+    builder.add(InlineKeyboardButton(text='Unpaid', callback_data=f'unpaid {product}'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data=f'back open/closed {product}'))
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def closed_orders_kb(product) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='Completed', callback_data=f'completed {product}'))
+    builder.add(InlineKeyboardButton(text='Cancelled', callback_data=f'cancelled {product}'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data=f'back open/closed {product}'))
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def orders_kb(product, open, cancelled, paid) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    orders = BotDB().get_orders(product=product, open=open, cancelled=cancelled, paid=paid)
+
+    for order in orders:
         builder.add(InlineKeyboardButton(text=order[0], callback_data=f'order {order[0]}'))
+    builder.add(InlineKeyboardButton(text='Back', callback_data=f'back paid/unpaid {product}'))
 
     builder.adjust(1)
     return builder.as_markup()
 
 
-def order_unpaid_more_kb() -> InlineKeyboardMarkup:
+def unpaid_order_more_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='✅ Approve the order', callback_data='Approve'))
+    builder.add(InlineKeyboardButton(text='❌ Cancel the order', callback_data='Cancel'))
+    builder.add(InlineKeyboardButton(text='↩️ Back to orders', callback_data='Back to orders'))
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def paid_order_more_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='✅ Complete the order', callback_data='Complete'))
     builder.add(InlineKeyboardButton(text='❌ Cancel the order', callback_data='Cancel'))
     builder.add(InlineKeyboardButton(text='↩️ Back to orders', callback_data='Back to orders'))
     builder.adjust(2)

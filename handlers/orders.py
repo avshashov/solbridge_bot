@@ -127,7 +127,7 @@ async def change_selected_category(message: types.Message, state: FSMContext):
     value = message.text
     data = await state.get_data()
     kwargs = {data['category']: value}
-    BotDB().change_user_data(user_id=user_id, **kwargs)
+    BotDB().update_user(user_id=user_id, **kwargs)
 
     user = BotDB().get_user_info(message.from_user.id)
     await message.answer(text=f'Changed. Please check all your information:'

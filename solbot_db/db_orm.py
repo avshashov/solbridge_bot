@@ -97,14 +97,14 @@ class BotDB:
 
     def order_message_for_admin(self, order_id, product) -> str:
         with Session(bind=self.engine) as session:
-            users_order = session.query(Orders.created_at, Users.name).join(Users).filter(Orders.order_id ==
-                                                                                          order_id).first()
+            users_order = session.query(Orders.url, Orders.created_at, Users.name).join(Users).filter(Orders.order_id ==
+                                                                                                      order_id).first()
 
             text = f'\n<b>Order</b>: {order_id}' \
                    f'\n<b>Product</b>: {product}' \
                    f'\n<b>Name</b>: {users_order.name}' \
-                   f'\n<b>Created at</b>: {users_order.created_at.strftime("%H:%M %d.%m.%Y")}' \
-                   f'\n<b>URL</b>: {users_order.url}'
+                   f'\n<b>URL</b>: {users_order.url}' \
+                   f'\n<b>Created at</b>: {users_order.created_at.strftime("%H:%M %d.%m.%Y")}'
             return text
 
     def get_orders(self, product, open, paid, canceled) -> list:
@@ -118,25 +118,31 @@ class BotDB:
     def get_order_more(self, order_id) -> str:
         with Session(bind=self.engine) as session:
             order = session.query(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
-                                  Orders.created_at).join(Users).filter(Orders.order_id == order_id).first()
+                                  Orders.created_at, Orders.url).join(Users).filter(Orders.order_id == order_id).first()
 
             text = f'<b>Order number</b>: {order.order_id}' \
                    f'\n<b>Name</b>: {order.name}' \
                    f'\n<b>Username</b>: {order.username}' \
                    f'\n<b>Email</b>: {order.email}' \
                    f'\n<b>Instagram</b>: {order.instagram}' \
-                   f'\n<b>Created at</b>: {order.created_at.strftime("%H:%M %d.%m.%Y")}' \
-                   f'\n<b>URL</b>: {order.url}'
+                   f'\n<b>URL</b>: {order.url}' \
+                   f'\n<b>Created at</b>: {order.created_at.strftime("%H:%M %d.%m.%Y")}'
 
             return text
 
-    def get_orders_more(self, product, open, paid, canceled) -> str:
+    def get_closed_orders(self, product, canceled, paid=None) -> str:
         with Session(bind=self.engine) as session:
-            orders = session.query(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
-                                   Orders.created_at, Orders.url).join(Users).filter(Orders.product == product,
-                                                                                     Orders.open == open,
-                                                                                     Orders.paid == paid,
-                                                                                     Orders.canceled == canceled).all()
+            if paid:
+                orders = session.query(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
+                                       Orders.created_at, Orders.url).join(Users).filter(Orders.product == product,
+                                                                                         Orders.open == False,
+                                                                                         Orders.paid == paid,
+                                                                                         Orders.canceled == canceled).all()
+            else:
+                orders = session.query(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
+                                       Orders.created_at, Orders.url).join(Users).filter(Orders.product == product,
+                                                                                         Orders.open == False,
+                                                                                         Orders.canceled == canceled).all()
             result = []
             if orders:
                 for order in orders:
@@ -145,7 +151,37 @@ class BotDB:
                            f'\n<b>Username</b>: {order.username}' \
                            f'\n<b>Email</b>: {order.email}' \
                            f'\n<b>Instagram</b>: {order.instagram}' \
-                           f'\n<b>Created at</b>: {order.created_at.strftime("%H:%M %d.%m.%Y")}' \
-                           f'\n<b>URL</b>: {order.url}'
+                           f'\n<b>URL</b>: {order.url}' \
+                           f'\n<b>Created at</b>: {order.created_at.strftime("%H:%M %d.%m.%Y")}'
                     result.append(text)
             return result
+
+    def cancel_the_order(self, order_id) -> int:
+        with Session(bind=self.engine) as session:
+            order = session.query(Orders).filter(Orders.order_id == order_id).first()
+            order.canceled = True
+            order.open = False
+            user_id = order.user_id
+            session.commit()
+
+            return user_id
+
+    def approve_the_order(self, order_id) -> int:
+        with Session(bind=self.engine) as session:
+            order = session.query(Orders).filter(Orders.order_id == order_id).first()
+            order.paid = True
+            user_id = order.user_id
+            session.commit()
+
+            return user_id
+
+    def complete_the_order(self, order_id) -> None:
+        with Session(bind=self.engine) as session:
+            order = session.query(Orders).filter(Orders.order_id == order_id).first()
+            order.open = False
+            session.commit()
+
+    def get_order_user(self, order_id) -> int:
+        with Session(bind=self.engine) as session:
+            user_id = session.query(Orders.user_id).filter(Orders.order_id == order_id).first()
+            return user_id[0]

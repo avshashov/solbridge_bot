@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from dotenv import load_dotenv
 
+import phrases
 from bot import SingleBot
 from keybords import callback_buttons
 from solbot_db.db_orm import BotDB
@@ -110,12 +111,13 @@ async def back_paid_unpaid_orders(callback: types.CallbackQuery):
 
 @router.callback_query(F.data.split()[0] == 'order')
 async def order_more(callback: types.CallbackQuery, state: FSMContext):
-    text = BotDB().get_order_more(order_id=callback.data.split()[1])
+    order_id = callback.data.split()[1]
+    text = BotDB().get_order_more(order_id=order_id)
     data = await state.get_data()
     if data['status'] == 'paid':
-        await callback.message.edit_text(text=text, reply_markup=callback_buttons.paid_order_more_kb())
+        await callback.message.edit_text(text=text, reply_markup=callback_buttons.paid_order_more_kb(order_id))
     elif data['status'] == 'unpaid':
-        await callback.message.edit_text(text=text, reply_markup=callback_buttons.unpaid_order_more_kb())
+        await callback.message.edit_text(text=text, reply_markup=callback_buttons.unpaid_order_more_kb(order_id))
 
     await callback.answer()
 
@@ -141,13 +143,54 @@ async def get_completed_canceled_orders(callback: types.CallbackQuery):
     status, product = callback.data.split()
     orders = []
     if status == 'completed':
-        orders = BotDB().get_orders_more(product=product, open=False, paid=True, canceled=False)
+        orders = BotDB().get_closed_orders(product=product, canceled=False, paid=True)
     elif status == 'canceled':
-        paid_orders = BotDB().get_orders_more(product=product, open=False, paid=True, canceled=True)
-        unpaid_orders = BotDB().get_orders_more(product=product, open=False, paid=False, canceled=True)
-        orders = paid_orders + unpaid_orders
-
+        orders = BotDB().get_closed_orders(product=product, canceled=True)
     orders = '\n\n'.join(orders) if orders else 'The list is empty'
     await callback.message.edit_text(text=f'{status.title()} {product}:\n\n{orders}',
                                      reply_markup=callback_buttons.closed_orders_kb(product))
+    await callback.answer()
+
+
+@router.callback_query(F.data.split()[0] == 'Cancel')
+async def cancel_order(callback: types.CallbackQuery):
+    order_id = callback.data.split()[1]
+    user_id = BotDB().cancel_the_order(order_id)
+    await callback.message.edit_text(text=f'Order {order_id} canceled',
+                                     reply_markup=callback_buttons.back_orders())
+
+    await sol_bot.send_message(chat_id=user_id, text=phrases.order_phrases['cancel_the_order'])
+    await callback.answer()
+
+
+@router.callback_query(F.data.split()[0] == 'Approve')
+async def approve_order(callback: types.CallbackQuery):
+    order_id = callback.data.split()[1]
+    user_id = BotDB().approve_the_order(order_id)
+    await callback.message.edit_text(text=f'Order {order_id} approved',
+                                     reply_markup=callback_buttons.back_orders())
+
+    await sol_bot.send_message(chat_id=user_id, text=phrases.order_phrases['approve_the_order'])
+    await callback.answer()
+
+
+@router.callback_query(F.data.split()[0] == 'Complete')
+async def complete_order(callback: types.CallbackQuery):
+    order_id = callback.data.split()[1]
+    BotDB().complete_the_order(order_id)
+    await callback.message.edit_text(text=f'Order {order_id} completed',
+                                     reply_markup=callback_buttons.back_orders())
+
+    await callback.answer()
+
+
+@router.callback_query(F.data.split()[0] == 'Notify')
+async def notify_order(callback: types.CallbackQuery):
+    order_id = callback.data.split()[1]
+    user_id = BotDB().get_order_user(order_id)
+    await callback.message.edit_text(text=f'the user is notified that the order {order_id} is ready',
+                                     reply_markup=callback_buttons.back_orders())
+
+    await sol_bot.send_message(chat_id=user_id, text=f'Order {order_id} is ready.')
+
     await callback.answer()

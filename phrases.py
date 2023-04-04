@@ -218,5 +218,11 @@ order_phrases = {
                     '\n\nWhen you upload it, please send to @yusungchoi the screenshot of your transaction.',
 
     'drive_link': 'Right now, could you send me the public link for your Google Drive '
-                  'with your photos (Maximum 30 photos).'
+                  'with your photos (Maximum 30 photos).',
+
+    'cancel_the_order': 'I am have to notify you, that your order has been canceled.'
+                        '\n\nIf you have any questions, you can contact with my master @vonavikon',
+
+    'approve_the_order': 'Hey! You order has been approved!'
+                         '\n\nWe will notify you when it\'s ready ^^'
 }

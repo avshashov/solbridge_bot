@@ -85,19 +85,19 @@ async def back_open_closed_orders(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data.in_({'paid album', 'unpaid album', 'paid book', 'unpaid book'}))
+@router.callback_query(F.data.in_({'paid album', 'unpaid album', 'paid book', 'unpaid book', 'Back to orders'}))
 async def get_paid_unpaid_orders(callback: types.CallbackQuery, state: FSMContext):
-    status, product = callback.data.split()
-    if status == 'paid':
-        await callback.message.edit_text(text=f'Paid orders list ({product})',
-                                         reply_markup=callback_buttons.orders_kb(product=product, open=True,
-                                                                                 canceled=False, paid=True))
-    elif status == 'unpaid':
-        await callback.message.edit_text(text=f'Unpaid orders list ({product})',
-                                         reply_markup=callback_buttons.orders_kb(product=product, open=True,
-                                                                                 canceled=False, paid=False))
+    if callback.data == 'Back to orders':
+        data = await state.get_data()
+        status, product = data['status'], data['product']
+    else:
+        status, product = callback.data.split()
+        await state.update_data(product=product, status=status)
 
-    await state.update_data(product=product, status=status)
+    paid = True if status == 'paid' else False
+    orders = BotDB().get_orders(product=product, open=True, canceled=False, paid=paid)
+    await callback.message.edit_text(text=f'{status.title()} orders list ({product})',
+                                     reply_markup=callback_buttons.orders_kb(product=product, orders=orders))
     await callback.answer()
 
 
@@ -118,22 +118,6 @@ async def order_more(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.edit_text(text=text, reply_markup=callback_buttons.paid_order_more_kb(order_id))
     elif data['status'] == 'unpaid':
         await callback.message.edit_text(text=text, reply_markup=callback_buttons.unpaid_order_more_kb(order_id))
-
-    await callback.answer()
-
-
-@router.callback_query(F.data == 'Back to orders')
-async def back_to_orders(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    status, product = data['status'], data['product']
-    if status == 'paid':
-        await callback.message.edit_text(text=f'Paid orders list ({product})',
-                                         reply_markup=callback_buttons.orders_kb(product=product, open=True,
-                                                                                 canceled=False, paid=True))
-    elif status == 'unpaid':
-        await callback.message.edit_text(text=f'Unpaid orders list ({product})',
-                                         reply_markup=callback_buttons.orders_kb(product=product, open=True,
-                                                                                 canceled=False, paid=False))
 
     await callback.answer()
 
@@ -192,5 +176,4 @@ async def notify_order(callback: types.CallbackQuery):
                                      reply_markup=callback_buttons.back_orders())
 
     await sol_bot.send_message(chat_id=user_id, text=f'Order {order_id} is ready.')
-
     await callback.answer()

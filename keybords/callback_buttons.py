@@ -1,3 +1,5 @@
+import math
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -169,15 +171,28 @@ def closed_orders_kb(product) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def orders_kb(product, orders) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
+def orders_kb(product, orders, count, offset) -> InlineKeyboardMarkup:
+    step = offset + 5
+    step = count if step > count else step
+    pages = math.ceil(count / 5)
+    current_page = math.ceil(step / 5)
 
-    for order in orders:
-        builder.add(InlineKeyboardButton(text=order[0], callback_data=f'order {order[0]}'))
-    builder.add(InlineKeyboardButton(text='↩️ Back', callback_data=f'back paid/unpaid {product}'))
+    buttons, navigation_buttons = [], []
+    for order in orders[offset:step]:
+        buttons.append([InlineKeyboardButton(text=order[0], callback_data=f'order {order[0]}')])
 
-    builder.adjust(1)
-    return builder.as_markup()
+    if offset > 0:
+        navigation_buttons.append(InlineKeyboardButton(text='⬅️ Previous', callback_data='previous page'))
+    navigation_buttons.append(InlineKeyboardButton(text=f'Page {current_page}/{pages}', callback_data=f'page'))
+
+    if step < count:
+        navigation_buttons.append(InlineKeyboardButton(text='Next ➡️', callback_data='next page'))
+
+    buttons.append(navigation_buttons)
+    buttons.append([InlineKeyboardButton(text='↩️ Back', callback_data=f'back paid/unpaid {product}')])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    return keyboard
 
 
 def unpaid_order_more_kb(order_id) -> InlineKeyboardMarkup:

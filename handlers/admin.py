@@ -85,19 +85,34 @@ async def back_open_closed_orders(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data.in_({'paid album', 'unpaid album', 'paid book', 'unpaid book', 'Back to orders'}))
+@router.callback_query(F.data.in_({'paid album', 'unpaid album', 'paid book', 'unpaid book', 'Back to orders',
+                                   'previous page', 'next page'}))
 async def get_paid_unpaid_orders(callback: types.CallbackQuery, state: FSMContext):
     if callback.data == 'Back to orders':
         data = await state.get_data()
-        status, product = data['status'], data['product']
+        status, product, offset = data['status'], data['product'], data['offset']
+
+    elif callback.data == 'previous page':
+        data = await state.get_data()
+        status, product, offset = data['status'], data['product'], data['offset'] - 5
+        await state.update_data(offset=offset)
+
+    elif callback.data == 'next page':
+        data = await state.get_data()
+        status, product, offset = data['status'], data['product'], data['offset'] + 5
+        await state.update_data(offset=offset)
+
     else:
+        offset = 0
         status, product = callback.data.split()
-        await state.update_data(product=product, status=status)
+        await state.update_data(product=product, status=status, offset=offset)
 
     paid = True if status == 'paid' else False
     orders = BotDB().get_orders(product=product, open=True, canceled=False, paid=paid)
+    count = len(orders)
     await callback.message.edit_text(text=f'{status.title()} orders list ({product})',
-                                     reply_markup=callback_buttons.orders_kb(product=product, orders=orders))
+                                     reply_markup=callback_buttons.orders_kb(product=product, orders=orders,
+                                                                             count=count, offset=offset))
     await callback.answer()
 
 

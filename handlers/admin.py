@@ -1,9 +1,9 @@
 import os
 
 from aiogram import F, Router, types
-from aiogram.filters import Text, Command
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import StatesGroup
 from dotenv import load_dotenv
 
 import phrases
@@ -32,20 +32,21 @@ async def publish_post(callback: types.CallbackQuery):
         await sol_bot.send_document(chat_id=os.getenv('CHANNEL_ID'), document=callback.message.document.file_id,
                                     caption=text)
     await callback.message.delete_reply_markup()
-    await callback.message.reply(text='Published')
+    await callback.message.edit_caption(caption=f'{text}\n\n<b>[Published]</b>')
     await callback.answer()
 
 
 @router.callback_query(F.data == 'Reject')
 async def reject_post(callback: types.CallbackQuery):
+    text = callback.message.caption
     await callback.message.delete_reply_markup()
-    await callback.message.reply(text='Rejected')
+    await callback.message.edit_caption(caption=f'{text}\n\n<b>[Rejected]</b>')
     await callback.answer()
 
 
 @router.message(Command(commands=['orders']))
 async def orders_command(message: types.Message):
-    if message.chat.id == int(os.getenv('GROUP_ID')):
+    if message.chat.id == int(os.getenv('ORDERS_GROUP')):
         await message.answer(text='Select order category', reply_markup=callback_buttons.orders_category_kb())
 
 

@@ -1,45 +1,24 @@
-from datetime import datetime
+import os
 
 import sqlalchemy as sq
 import sqlalchemy.exc
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import Session
-from solbot_db.models import Users, Orders, Blacklist, Admins, create_tables
+from solbot_db.models import Users, Orders
 from utils import get_hash
 
 
 class BotDB:
     def __init__(self):
-        # DSN = f'postgresql://{USER}:{PASSWORD}@localhost:5432/db_name'
+        # DSN = f'postgresql://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432/{os.getenv("NAME_DB")}'
+        # DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432/{os.getenv("NAME_DB")}'
         DSN = 'sqlite:///sqlite3.db'
         self.engine = sq.create_engine(DSN, echo=False)
-
-    # def user_is_blocked(self, user_id) -> bool:
-    #     with Session(bind=self.engine) as session:
-    #         user = session.query(Users).filter(Users.user_id == user_id).first()
-    #
-    #         return True if user else False
-
-    # def add_user_to_blacklist(self, user_id, username) -> None:
-    #     with Session(bind=self.engine) as session:
-    #         user = session.query(Users).filter(Users.user_id == user_id).first()
-    #         if not user:
-    #             session.add(Users(user_id=user_id, username=username))
-    #             session.commit()
-
-    # def del_user_from_blacklist(self, user_id) -> None:
-    #     with Session(bind=self.engine) as session:
-    #         user = session.query(Users).filter(Users.user_id == user_id).first()
-    #         session.delete(user)
-    #         session.commit()
-
-    # def add_user_info(self, user_id, name, surname, email, instagram) -> None:
-    #     with Session(bind=self.engine) as session:
-    #         user = session.query(Users).filter(Users.user_id == user_id).first()
-    #         if not user:
-    #             session.add(Users(user_id=user_id, name=name, surname=surname, email=email, instagram=instagram))
-    #             session.commit()
+        # self.engine = create_async_engine(DSN, echo=True, future=True)
+        # async_session = async_sessionmaker(engine=self.engine, expire_on_commit=False)
 
     def order_exists(self, user_id, product) -> bool:
+        # async with self.async_session() as session:
         with Session(bind=self.engine) as session:
             order = session.query(Orders.order_id).filter(Orders.user_id == user_id, Orders.product == product,
                                                           Orders.open == True,
@@ -130,7 +109,7 @@ class BotDB:
 
             return text
 
-    def get_closed_orders(self, product, canceled, paid=None) -> str:
+    def get_closed_orders(self, product, canceled, paid=None) -> list:
         with Session(bind=self.engine) as session:
             if paid:
                 orders = session.query(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,

@@ -9,7 +9,7 @@ from handlers.photo_uploader import router as uploader_router
 from handlers.admin import router as admin_router
 from handlers.orders import router as orders_router
 from solbot_db.db_orm import BotDB
-from solbot_db.models import create_tables
+from solbot_db.models import create_tables, Base
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,6 +26,9 @@ async def set_commands(bot):
 
 
 async def main(bot):
+    # async with BotDB().engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
+
     create_tables(BotDB().engine)
     dp = Dispatcher()
     dp.include_router(uploader_router)

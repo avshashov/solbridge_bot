@@ -3,8 +3,6 @@ import math
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from solbot_db.db_orm import BotDB
-
 
 def edit_message_kb() -> InlineKeyboardMarkup:
     buttons = [
@@ -183,8 +181,8 @@ def orders_kb(product, orders, count, offset) -> InlineKeyboardMarkup:
 
     if offset > 0:
         navigation_buttons.append(InlineKeyboardButton(text='⬅️ Previous', callback_data='previous page'))
-    navigation_buttons.append(InlineKeyboardButton(text=f'Page {current_page}/{pages}', callback_data=f'page'))
-
+    if pages > 0:
+        navigation_buttons.append(InlineKeyboardButton(text=f'Page {current_page}/{pages}', callback_data=f'page'))
     if step < count:
         navigation_buttons.append(InlineKeyboardButton(text='Next ➡️', callback_data='next page'))
 

@@ -72,7 +72,7 @@ async def cancel_order(message: types.Message, state: FSMContext):
     order_id = BotDB().cancel_order(user_id=message.from_user.id, product=product['product'])
     text = BotDB().order_message_for_admin(order_id=order_id, product=product['product'])
 
-    await sol_bot.send_message(chat_id=os.getenv('GROUP_ID'), text=f'<b>[CANCELLED]</b>'
+    await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CANCELLED]</b>'
                                                                    f'\n{text}')
     await message.answer(text=f'Order №<b>{order_id}</b> is cancelled', reply_markup=default_buttons.main_menu_kb())
     await state.clear()
@@ -154,7 +154,7 @@ async def request_user_url_or_create_book_order(callback: types.CallbackQuery, s
         order_id = BotDB().create_order(user_id=callback.from_user.id, product=data['product'])
         text = BotDB().order_message_for_admin(order_id=order_id, product=data['product'])
 
-        await sol_bot.send_message(chat_id=os.getenv('GROUP_ID'), text=f'<b>[CREATED]</b>'
+        await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CREATED]</b>'
                                                                        f'\n{text}')
 
         await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')
@@ -180,7 +180,7 @@ async def confirm_or_change_url(callback: types.CallbackQuery, state: FSMContext
         order_id = BotDB().create_order(user_id=callback.from_user.id, product='album', url=url['url'])
         text = BotDB().order_message_for_admin(order_id=order_id, product='album')
 
-        await sol_bot.send_message(chat_id=os.getenv('GROUP_ID'), text=f'<b>[CREATED]</b>'
+        await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CREATED]</b>'
                                                                        f'\n{text}')
 
         await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')

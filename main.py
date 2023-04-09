@@ -1,15 +1,17 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Dispatcher
 from aiogram.types import BotCommand
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from bot import SingleBot
 from handlers.photo_uploader import router as uploader_router
 from handlers.admin import router as admin_router
 from handlers.orders import router as orders_router
-from solbot_db.db_orm import BotDB
-from solbot_db.models import create_tables, Base
+from database.models import Base
+from middlewares.session_db import SessionMiddleware
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,11 +28,16 @@ async def set_commands(bot):
 
 
 async def main(bot):
-    # async with BotDB().engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.create_all)
+    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432/{os.getenv("NAME_DB")}'
+    engine = create_async_engine(DSN, echo=False, future=True)
+    session = async_sessionmaker(engine, expire_on_commit=False)
 
-    create_tables(BotDB().engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     dp = Dispatcher()
+    dp.update.middleware.register(SessionMiddleware(session))
+    # dp.update.middleware(SessionMiddleware(session))
     dp.include_router(uploader_router)
     dp.include_router(admin_router)
     dp.include_router(orders_router)

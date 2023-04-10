@@ -1,14 +1,20 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Dispatcher
 from aiogram.types import BotCommand
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from bot import SingleBot
-from handlers.user_handlers import router as uh_router
+from handlers.photo_uploader import router as uploader_router
 from handlers.admin import router as admin_router
+from handlers import album_book
+from database.models import Base
+from middlewares.session_db import SessionMiddleware
 
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 sol_bot = SingleBot()
 
@@ -22,8 +28,17 @@ async def set_commands(bot):
 
 
 async def main(bot):
+    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432/{os.getenv("NAME_DB")}'
+    engine = create_async_engine(DSN, echo=False, future=True)
+    session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     dp = Dispatcher()
-    dp.include_router(uh_router)
+    dp.update.middleware.register(SessionMiddleware(session))
+    dp.include_router(uploader_router)
+    dp.include_router(album_book.router)
     dp.include_router(admin_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await set_commands(bot)

@@ -21,7 +21,9 @@ async def statistics(session: AsyncSession):
                                                                            PreOrders.status).order_by(
             PreOrders.product, PreOrders.status))).all()
 
-    result = [' '.join(list(map(str, row))) for row in result]
-    text = '\n'.join(result)
-
+    if result:
+        result = [' '.join(list(map(str, row))) for row in result]
+        text = '\n'.join(result)
+    else:
+        text = 'The list is empty'
     return text

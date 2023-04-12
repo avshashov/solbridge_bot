@@ -164,12 +164,13 @@ async def set_author_message(message: types.Message, state: FSMContext):
 @router.callback_query(Loader.send_state, F.data == 'Ok')
 async def send_photo_to_group(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
+    user_id = callback.from_user.id
     if data['file'] == 'document':
         await sol_bot.send_document(chat_id=os.getenv('GROUP_ID'), document=data['file_id'], caption=data['text'],
-                                    reply_markup=callback_buttons.admin_kb())
+                                    reply_markup=callback_buttons.admin_kb(user_id))
     elif data['file'] == 'photo':
         await sol_bot.send_photo(chat_id=os.getenv('GROUP_ID'), photo=data['file_id'], caption=data['text'],
-                                 reply_markup=callback_buttons.admin_kb())
+                                 reply_markup=callback_buttons.admin_kb(user_id))
 
     await state.clear()
     await callback.message.edit_text(text=choice(phrases.final_phrases))

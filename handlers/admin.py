@@ -25,11 +25,12 @@ async def publish_post(callback: types.CallbackQuery):
                                     document=callback.message.document.file_id, caption=text)
 
     await callback.message.delete_reply_markup()
-    await callback.message.edit_caption(caption=f'{text}\n\n<b>[Published]</b>')
+    await callback.message.edit_caption(caption=f'{text}\n\n<b>[Approved]</b>')
 
     user_id = callback.data.split()[1]
     # try/except
-    await sol_bot.send_message(chat_id=user_id, text='Your Photo was approved by Admin!')
+    await sol_bot.send_message(chat_id=user_id, text='Congratulations! your photo has been approved by the club\'s '
+                                                     'moderation!')
     await callback.answer()
 
 
@@ -53,8 +54,8 @@ async def publish_to_collection(callback: types.CallbackQuery):
 
     user_id = callback.data.split()[1]
     # try/except
-    await sol_bot.send_message(chat_id=user_id, text='Congratulations! Your photo was included in the club\'s '
-                                                     'collection!')
+    await sol_bot.send_message(chat_id=user_id, text='Awesome! Your photo is so beautiful that'
+                                                     ' we immediately published it in our official collection')
     await callback.answer()
 
 

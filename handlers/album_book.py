@@ -29,7 +29,9 @@ async def press_photo_album(message: types.Message, session: AsyncSession):
 
 @router.message(Text(text=['PCS Book']))
 async def press_pcs_book(message: types.Message, session: AsyncSession):
-    text = 'Some text (book)'
+    text = 'We will begin offering a PCS Book on May 15th. ' \
+           'Priced at 70,000₩ for one book with 90 pages and high-quality photos. This is exclusive item.' \
+           '\n\nFollow our instagram and be ready for updates 😎'
     if await order_exists(session, user_id=message.from_user.id, product='book'):
         await message.answer(text)
     else:
@@ -44,5 +46,5 @@ async def set_order_status(callback: types.CallbackQuery, session: AsyncSession)
     await create_order(session, user_id=user_id, product=product, status=status)
     await sol_bot.send_message(chat_id=os.getenv('TEST_GROUP'), text=f'{product}, {user_id}, {status}')
 
-    await callback.message.edit_text(text='Thanks for the answer')
+    await callback.message.edit_text(text='Thank you for your answer human creature!')
     await callback.answer()

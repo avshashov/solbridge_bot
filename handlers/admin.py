@@ -76,6 +76,6 @@ async def reject_post(callback: types.CallbackQuery):
 
 @router.message(F.chat.type != 'private', Command(commands=['orders']))
 async def get_orders_statistic(message: types.Message, session: AsyncSession):
-    if message.chat.id == int(os.getenv('TEST_GROUP')):
+    if message.chat.id == int(os.getenv('ADMIN_ORDERS')):
         text = await statistics(session)
         await message.answer(text)

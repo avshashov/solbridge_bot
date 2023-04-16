@@ -44,7 +44,7 @@ async def set_order_status(callback: types.CallbackQuery, session: AsyncSession)
     user_id = callback.from_user.id
 
     await create_order(session, user_id=user_id, product=product, status=status)
-    await sol_bot.send_message(chat_id=os.getenv('TEST_GROUP'), text=f'{product}, {user_id}, {status}')
-
     await callback.message.edit_text(text='Thank you for your answer human creature!')
+
+    await sol_bot.send_message(chat_id=os.getenv('TEST_GROUP'), text=f'{product}, {user_id}, {status}')
     await callback.answer()

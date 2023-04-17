@@ -13,8 +13,8 @@ from handlers import album_book
 from database.models import Base
 from middlewares.session_db import SessionMiddleware
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 sol_bot = SingleBot()
 
@@ -28,7 +28,7 @@ async def set_commands(bot):
 
 
 async def main(bot):
-    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432' \
+    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@{os.getenv("HOST_DB")}:5432' \
           f'/{os.getenv("NAME_DB")}'
     engine = create_async_engine(DSN, echo=False, future=True)
     session = async_sessionmaker(engine, expire_on_commit=False)

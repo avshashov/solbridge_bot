@@ -184,3 +184,42 @@ help_phrase = "I am a bot created to assist club members with the task of upload
               "efficient uploading process. " \
               "" \
               "\n\nMy master can be found at the designated link @vonavikon"
+
+user_notification_phrases = {
+    "Approve": [
+        "Well done! The club's moderation team has approved your photo!",
+        "Congrats! Your photo has passed the club's moderation process!",
+        "Excellent news! The club's moderation has given their approval to your photo!",
+        "Great job! Your photo has been given the green light by the club's moderators!",
+        "Bravo! Your photo has been accepted by the club's moderation committee!",
+        "Kudos! The club's moderators have approved your photo!",
+        "Way to go! Your photo has made it past the club's moderation!",
+        "Awesome! Your photo has been cleared by the club's moderation team!",
+        "Superb! Your photo has been deemed acceptable by the club's moderators!",
+        "Hooray! Your photo has met the standards of the club's moderation!",
+        "Fantastic news! Your photo has been endorsed by the club's moderation!",
+        "Congratulation! The club's moderation has granted approval for your photo!",
+        "Excellent! Your photo has been given the go-ahead by the club's moderation!",
+        "Amazing! Your photo has been approved by the club's moderation board!",
+        "Splendid! The club's moderation team has approved your photo with flying colors!"
+    ],
+
+    "Collection": [
+        "Awesome! Your photo is so beautiful that we immediately published it in our official collection.",
+        "Fantastic work! Your stunning photo has been added to our official collection.",
+        "Incredible shot! We've decided to publish your beautiful photo in our official collection.",
+        "Amazing! Your photo has been chosen to be a part of our official collection.",
+        "Well done! Your photo was so impressive that we've published it in our official collection.",
+        "Congratulations! Your photo has been selected to be featured in our official collection.",
+        "Great job! Your beautiful photo has earned a spot in our official collection.",
+        "Bravo! Your photo has been added to our official collection due to its stunning beauty.",
+        "Excellent work! Your breathtaking photo has been published in our official collection.",
+        "Superb! We've decided to feature your stunning photo in our official collection.",
+        "Outstanding! Your photo has been selected to be a part of our official collection due to its beauty.",
+        "Way to go! Your photo was so beautiful that we've published it in our official collection.",
+        "Kudos! Your beautiful photo has earned a place in our official collection.",
+        "Splendid! Your photo has been chosen to be featured in our official collection due to its beauty.",
+        "Hooray! Your photo has been added to our official collection because of its stunning quality.",
+        "Amazing work! Your beautiful photo has been published in our official collection."
+    ]
+}

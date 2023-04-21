@@ -20,4 +20,3 @@ class SessionMiddleware(BaseMiddleware):
         async with self.sessionmaker() as session:
             data["session"] = session
             return await handler(event, data)
-

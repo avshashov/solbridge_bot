@@ -28,7 +28,8 @@ async def set_commands(bot):
 
 
 async def main(bot):
-    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@localhost:5432/{os.getenv("NAME_DB")}'
+    DSN = f'postgresql+asyncpg://{os.getenv("USER_DB")}:{os.getenv("PASSWORD_DB")}@{os.getenv("HOST_DB")}:5432' \
+          f'/{os.getenv("NAME_DB")}'
     engine = create_async_engine(DSN, echo=False, future=True)
     session = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -37,7 +38,6 @@ async def main(bot):
 
     dp = Dispatcher()
     dp.update.middleware.register(SessionMiddleware(session))
-    # dp.update.middleware(SessionMiddleware(session))
     dp.include_router(uploader_router)
     dp.include_router(admin_router)
     dp.include_router(orders_router)

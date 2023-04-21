@@ -78,10 +78,12 @@ def anonymous_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def admin_kb() -> InlineKeyboardMarkup:
+def admin_kb(user_id) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.add(InlineKeyboardButton(text='Publish', callback_data='Publish'))
+    builder.add(InlineKeyboardButton(text='Approve', callback_data=f'Publish {user_id}'))
+    builder.add(InlineKeyboardButton(text='Publish to Collection', callback_data=f'Collection {user_id}'))
     builder.add(InlineKeyboardButton(text='Reject', callback_data='Reject'))
+    builder.adjust(1)
     return builder.as_markup()
 
 

@@ -43,13 +43,15 @@ async def press_photoalbum_or_book(message: types.Message):
 async def order_photo_album(callback: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     await state.update_data(product=callback.data)
 
-    if callback.data == 'album' and await order_exists_db(session, callback.from_user.id, product='album'):
-        await callback.message.edit_text(text=phrases.order_phrases['exists_album'])
+    if callback.data == 'album' and (order_number := await order_exists_db(session, callback.from_user.id,
+                                                                           product='album')):
+        await callback.message.edit_text(text=f"{phrases.order_phrases['exists_album']} \nOrder №{order_number[0]}")
         await callback.message.answer(text='Choose an action', reply_markup=default_buttons.cancel_order_kb())
         await state.set_state(UserData.cancel_order_state)
 
-    elif callback.data == 'book' and await order_exists_db(session, callback.from_user.id, product='book'):
-        await callback.message.edit_text(text=phrases.order_phrases['exists_book'])
+    elif callback.data == 'book' and (order_number := await order_exists_db(session, callback.from_user.id,
+                                                                            product='book')):
+        await callback.message.edit_text(text=f"{phrases.order_phrases['exists_book']} \nOrder №{order_number[0]}")
         await callback.message.answer(text='Choose an action', reply_markup=default_buttons.cancel_order_kb())
         await state.set_state(UserData.cancel_order_state)
 
@@ -74,7 +76,7 @@ async def cancel_order(message: types.Message, state: FSMContext, session: Async
     order_id = await cancel_order_by_user_db(session, user_id=message.from_user.id, product=product['product'])
     text = await order_message_for_admin_db(session, order_id=order_id, product=product['product'])
 
-    await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CANCELLED]</b>'
+    await sol_bot.send_message(chat_id=os.getenv('ADMIN_ORDERS'), text=f'<b>[CANCELLED]</b>'
                                                                        f'\n{text}')
     await message.answer(text=f'Order №<b>{order_id}</b> is cancelled', reply_markup=default_buttons.main_menu_kb())
     await state.clear()
@@ -157,7 +159,7 @@ async def request_user_url_or_create_book_order(callback: types.CallbackQuery, s
         order_id = await create_order_db(session, user_id=callback.from_user.id, product=data['product'])
         text = await order_message_for_admin_db(session, order_id=order_id, product=data['product'])
 
-        await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CREATED]</b>'
+        await sol_bot.send_message(chat_id=os.getenv('ADMIN_ORDERS'), text=f'<b>[CREATED]</b>'
                                                                            f'\n{text}')
 
         await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')
@@ -183,7 +185,7 @@ async def confirm_or_change_url(callback: types.CallbackQuery, state: FSMContext
         order_id = await create_order_db(session, user_id=callback.from_user.id, product='album', url=url['url'])
         text = await order_message_for_admin_db(session, order_id=order_id, product='album')
 
-        await sol_bot.send_message(chat_id=os.getenv('ORDERS_GROUP'), text=f'<b>[CREATED]</b>'
+        await sol_bot.send_message(chat_id=os.getenv('ADMIN_ORDERS'), text=f'<b>[CREATED]</b>'
                                                                            f'\n{text}')
 
         await callback.message.edit_text(text=f'Great! Order number: <b>{order_id}</b>')

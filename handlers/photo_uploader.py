@@ -125,6 +125,7 @@ async def set_camera(message: types.Message, state: FSMContext):
 @router.callback_query(Loader.author_state, F.data == 'Anonymous author')
 async def set_author_callback(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(author=callback.data)
+    await callback.message.delete_reply_markup()
     await callback.message.answer('Check the correctness of the data')
 
     data = await state.get_data()
@@ -281,6 +282,7 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
     text = text_for_message(data)
     await state.update_data(text=text)
 
+    await callback.message.delete_reply_markup()
     if data['file'] == 'document':
         await callback.message.answer_document(document=data['file_id'], caption=text)
     elif data['file'] == 'photo':

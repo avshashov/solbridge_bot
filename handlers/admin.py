@@ -5,7 +5,7 @@ from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup
-from aiogram.exceptions import TelegramForbiddenError
+from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -85,8 +85,15 @@ async def reject_post(callback: types.CallbackQuery):
 
 @router.message(F.chat.type != 'private', Command(commands=['orders']))
 async def orders_command(message: types.Message):
-    if message.chat.id == int(os.getenv('ORDERS_GROUP')):
+    if message.chat.id == int(os.getenv('ADMIN_ORDERS')):
         await message.answer(text='Select order category', reply_markup=callback_buttons.orders_category_kb())
+
+
+@router.message(F.chat.type != 'private', Command(commands=['emails']))
+async def emails_command(message: types.Message, session: AsyncSession):
+    if message.chat.id == int(os.getenv('ADMIN_ORDERS')):
+        emails = await db.get_emails_db(session)
+        await message.answer(text=emails)
 
 
 @router.callback_query(F.data.in_({'admin album', 'admin book'}))
@@ -186,8 +193,11 @@ async def get_completed_canceled_orders(callback: types.CallbackQuery, session: 
     elif status == 'canceled':
         orders = await db.get_closed_orders_db(session, product=product, canceled=True)
     orders = '\n\n'.join(orders) if orders else 'The list is empty'
-    await callback.message.edit_text(text=f'{status.title()} {product}:\n\n{orders}',
-                                     reply_markup=callback_buttons.closed_orders_kb(product))
+    try:
+        await callback.message.edit_text(text=f'{status.title()} {product}:\n\n{orders}',
+                                         reply_markup=callback_buttons.closed_orders_kb(product))
+    except TelegramBadRequest:
+        pass
     await callback.answer()
 
 

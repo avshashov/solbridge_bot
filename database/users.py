@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Users
 
 
-async def get_user_info_db(session: AsyncSession, user_id: int) -> Users:
+async def get_user_info_db(session: AsyncSession, user_id: int) -> Users | None:
     user = (
         await session.execute(select(Users.name, Users.email, Users.instagram).where(Users.user_id == user_id))).first()
     return user

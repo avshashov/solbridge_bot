@@ -183,7 +183,7 @@ def orders_kb(product, orders, count, offset) -> InlineKeyboardMarkup:
 
     if offset > 0:
         navigation_buttons.append(InlineKeyboardButton(text='⬅️ Previous', callback_data='previous page'))
-    if pages > 0:
+    if pages > 1:
         navigation_buttons.append(InlineKeyboardButton(text=f'Page {current_page}/{pages}', callback_data=f'page'))
     if step < count:
         navigation_buttons.append(InlineKeyboardButton(text='Next ➡️', callback_data='next page'))

@@ -5,11 +5,11 @@ from database.models import Users, Orders
 from utils import get_hash
 
 
-async def order_exists_db(session: AsyncSession, user_id, product) -> bool:
+async def order_exists_db(session: AsyncSession, user_id, product) -> int | None:
     order = (await session.execute(select(Orders.order_id).where(Orders.user_id == user_id, Orders.product == product,
                                                                  Orders.open == True,
                                                                  Orders.paid == False))).first()
-    return True if order else False
+    return order
 
 
 async def create_order_db(session: AsyncSession, user_id, product, **kwargs) -> int:
@@ -110,7 +110,45 @@ async def get_order_user_db(session: AsyncSession, order_id) -> int:
     return user_id[0]
 
 
-def text_order(order):
+async def get_emails_db(session: AsyncSession) -> str:
+    paid_albums = (await session.execute(select(Users.email).join(Orders).
+                                         where(Orders.product == 'album',
+                                               Orders.open == True,
+                                               Orders.paid == True))).scalars().all()
+    paid_albums = '\n'.join(paid_albums) if paid_albums else 'The list is empty'
+
+    unpaid_albums = (await session.execute(select(Users.email).join(Orders).
+                                           where(Orders.product == 'album',
+                                                 Orders.open == True,
+                                                 Orders.paid == False))).scalars().all()
+    unpaid_albums = '\n'.join(unpaid_albums) if unpaid_albums else 'The list is empty'
+
+    paid_books = (await session.execute(select(Users.email).join(Orders).
+                                        where(Orders.product == 'book',
+                                              Orders.open == True,
+                                              Orders.paid == True))).scalars().all()
+    paid_books = '\n'.join(paid_books) if paid_books else 'The list is empty'
+
+    unpaid_books = (await session.execute(select(Users.email).join(Orders).
+                                          where(Orders.product == 'book',
+                                                Orders.open == True,
+                                                Orders.paid == False))).scalars().all()
+    unpaid_books = '\n'.join(unpaid_books) if unpaid_books else 'The list is empty'
+
+    text = f'<b>Email list</b>' \
+           f'\n\nPaid albums:' \
+           f'\n{paid_albums}' \
+           f'\n\nUnpaid albums:' \
+           f'\n{unpaid_albums}' \
+           f'\n\nPaid books:' \
+           f'\n{paid_books}' \
+           f'\n\nUnpaid books:' \
+           f'\n{unpaid_books}'
+
+    return text
+
+
+def text_order(order) -> str:
     text = f'<b>Order number</b>: {order.order_id}' \
            f'\n<b>Name</b>: {order.name}' \
            f'\n<b>Username</b>: {order.username}' \

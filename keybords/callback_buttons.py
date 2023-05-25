@@ -218,3 +218,12 @@ def back_orders() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='↩️ Back to orders', callback_data='Back to orders'))
     return builder.as_markup()
+
+
+def pre_order_choice_kb(product) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(text='I will definitely buy it', callback_data=f'buy {product}'))
+    builder.add(InlineKeyboardButton(text='I will think about it', callback_data=f'think {product}'))
+    builder.add(InlineKeyboardButton(text='Not interested', callback_data=f'no {product}'))
+    builder.adjust(2)
+    return builder.as_markup()

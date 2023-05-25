@@ -10,8 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import phrases
 from bot import SingleBot
 from database.orders import order_exists_db, order_message_for_admin_db, create_order_db, cancel_order_by_user_db
+from database.pre_orders import preorder_exists, create_preorder
 from database.users import user_exists_db, get_user_info_db, create_user_db, update_user_db
 from keybords import default_buttons, callback_buttons
+from keybords.callback_buttons import pre_order_choice_kb
 
 
 class UserData(StatesGroup):
@@ -28,6 +30,32 @@ load_dotenv()
 sol_bot = SingleBot()
 router = Router()
 
+
+###
+@router.message(Text(text=['Photo Album']))
+async def press_photo_album(message: types.Message, session: AsyncSession):
+    text = 'We will begin offering the photo album with 30 of your photos' \
+           ' to preserve your memories starting on June 10th. ' \
+           'Priced at 18,000₩ for one album with 30 photos.' \
+           '\n\nFollow our instagram and be ready for updates 😎'
+
+    if await preorder_exists(session, user_id=message.from_user.id, product='album'):
+        await message.answer(text)
+    else:
+        await message.answer(text, reply_markup=pre_order_choice_kb(product='album'))
+
+
+@router.callback_query(F.data.split()[0].in_({'buy', 'think', 'no'}))
+async def set_order_status(callback: types.CallbackQuery, session: AsyncSession):
+    status, product = callback.data.split()
+    user_id = callback.from_user.id
+
+    await create_preorder(session, user_id=user_id, product=product, status=status)
+    await callback.message.edit_text(text='Thank you for your answer human creature!')
+    await callback.answer()
+
+
+###
 
 @router.message(F.text.in_({'Photo Album', 'PCS Book'}))
 async def press_photoalbum_or_book(message: types.Message):

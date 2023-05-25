@@ -1,6 +1,6 @@
 from sqlalchemy import BigInteger, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Base(DeclarativeBase):
@@ -28,9 +28,17 @@ class Orders(Base):
     order_id: Mapped[str] = mapped_column(unique=True)
     product: Mapped[str] = mapped_column(String(5), nullable=False)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
-    # updated_at: Mapped[datetime] = mapped_column(DateTime, onupdate=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now() + timedelta(hours=6))
     open: Mapped[bool] = mapped_column(default=True)
     paid: Mapped[bool] = mapped_column(default=False)
     canceled: Mapped[bool] = mapped_column(default=False)
     url: Mapped[str] = mapped_column(nullable=True)
+
+
+class PreOrders(Base):
+    __tablename__ = 'pre_orders'
+
+    order_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    product: Mapped[str] = mapped_column(String(5), nullable=False)
+    status: Mapped[str] = mapped_column(nullable=False)

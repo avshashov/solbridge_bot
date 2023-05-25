@@ -208,7 +208,8 @@ async def cancel_order(callback: types.CallbackQuery, session: AsyncSession):
     await callback.message.edit_text(text=f'Order {order_id} canceled',
                                      reply_markup=callback_buttons.back_orders())
 
-    await sol_bot.send_message(chat_id=user_id, text=phrases.order_phrases['cancel_the_order'])
+    await sol_bot.send_message(chat_id=user_id, text=f'{phrases.order_phrases["cancel_the_order"]}'
+                                                     f'\nOrder {order_id}')
     await callback.answer()
 
 
@@ -219,7 +220,8 @@ async def approve_order(callback: types.CallbackQuery, session: AsyncSession):
     await callback.message.edit_text(text=f'Order {order_id} approved',
                                      reply_markup=callback_buttons.back_orders())
 
-    await sol_bot.send_message(chat_id=user_id, text=phrases.order_phrases['approve_the_order'])
+    await sol_bot.send_message(chat_id=user_id, text=f'{phrases.order_phrases["approve_the_order"]}'
+                                                     f'\nOrder {order_id}')
     await callback.answer()
 
 

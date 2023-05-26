@@ -34,9 +34,9 @@ router = Router()
 ###
 @router.message(Text(text=['Photo Album']))
 async def press_photo_album(message: types.Message, session: AsyncSession):
-    text = 'We will begin offering the photo album with 30 of your photos' \
+    text = 'We will begin offering the photo album with 20 of your photos' \
            ' to preserve your memories starting on June 10th. ' \
-           'Priced at 18,000₩ for one album with 30 photos.' \
+           'Priced at 19,500₩ for one album with 20 photos.' \
            '\n\nFollow our instagram and be ready for updates 😎'
 
     if await preorder_exists(session, user_id=message.from_user.id, product='album'):

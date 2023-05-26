@@ -186,9 +186,9 @@ help_phrase = "I am a bot created to assist club members with the task of upload
               "\n\nMy master can be found at the designated link @vonavikon"
 
 order_phrases = {
-    'album': "Currently, we are offering a photo album with 30 of your photos to preserve your memories. " \
+    'album': "Currently, we are offering a photo album with 20 of your photos to preserve your memories. " \
              "This is a great way to remember the good old days of your life's chapters." \
-             "\n\nCurrent price is 18.000 ₩ for 1 photo album and 30 photos." \
+             "\n\nCurrent price is 19.500 ₩ for 1 photo album and 20 photos." \
              "\n\nWe will make everything and will give personally to you." \
              "\n\nIf you are interested, please press the button “Order the Photo Album”",
 

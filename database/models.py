@@ -28,7 +28,7 @@ class Orders(Base):
     order_id: Mapped[str] = mapped_column(unique=True)
     product: Mapped[str] = mapped_column(String(5), nullable=False)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now() + timedelta(hours=6))
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now() + timedelta(hours=9))
     open: Mapped[bool] = mapped_column(default=True)
     paid: Mapped[bool] = mapped_column(default=False)
     canceled: Mapped[bool] = mapped_column(default=False)

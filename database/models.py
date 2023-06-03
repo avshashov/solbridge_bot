@@ -1,6 +1,6 @@
-from sqlalchemy import BigInteger, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime, timedelta
+from sqlalchemy import BigInteger, String, ForeignKey, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -42,3 +42,15 @@ class PreOrders(Base):
     user_id: Mapped[int] = mapped_column(BigInteger)
     product: Mapped[str] = mapped_column(String(5), nullable=False)
     status: Mapped[str] = mapped_column(nullable=False)
+
+
+class PostQueue(Base):
+    __tablename__ = 'post_queue'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    status: Mapped[bool]
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    type: Mapped[str] = mapped_column(String(8), nullable=False)
+    text: Mapped[str] = mapped_column(Text)
+    file_id: Mapped[str] = mapped_column(Text)
+    target: Mapped[bool]

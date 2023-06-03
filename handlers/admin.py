@@ -1,17 +1,16 @@
 import os
-from random import choice
 
 from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup
-from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import phrases
 from bot import SingleBot
-from database import orders as db
+from database import orders as db, queue
 from keybords import callback_buttons
 
 
@@ -25,53 +24,42 @@ router = Router()
 
 
 @router.callback_query(F.data.split()[0] == 'Publish')
-async def publish_post(callback: types.CallbackQuery):
+async def publish_post(callback: types.CallbackQuery, session: AsyncSession):
     text = callback.message.html_text
+    user_id = int(callback.data.split()[1])
 
     if callback.message.photo:
-        await sol_bot.send_photo(chat_id=os.getenv('TOPIC_GROUP_ID'), message_thread_id=os.getenv('TOPIC_THREAD_ID'),
-                                 photo=callback.message.photo[-1].file_id, caption=text)
+        photo_id = callback.message.photo[-1].file_id
+        await queue.add_post_to_queue(session, user_id=user_id, type='photo', text=text, file_id=photo_id, target=False)
+
     elif callback.message.document:
-        await sol_bot.send_document(chat_id=os.getenv('TOPIC_GROUP_ID'), message_thread_id=os.getenv('TOPIC_THREAD_ID'),
-                                    document=callback.message.document.file_id, caption=text)
+        document_id = callback.message.document.file_id
+        await queue.add_post_to_queue(session, user_id=user_id, type='document', text=text, file_id=document_id,
+                                      target=False)
 
     await callback.message.delete_reply_markup()
     await callback.message.edit_caption(caption=f'{text}\n\n<b>[Approved]</b>')
 
-    try:
-        user_id = callback.data.split()[1]
-        await sol_bot.send_message(chat_id=user_id, text=choice(phrases.user_notification_phrases['Approve']))
-    except IndexError:
-        pass
-    except TelegramForbiddenError:
-        pass
     await callback.answer()
 
 
 @router.callback_query(F.data.split()[0] == 'Collection')
-async def publish_to_collection(callback: types.CallbackQuery):
+async def publish_to_collection(callback: types.CallbackQuery, session: AsyncSession):
     text = callback.message.html_text
+    user_id = int(callback.data.split()[1])
 
     if callback.message.photo:
-        await sol_bot.send_photo(chat_id=os.getenv('TOPIC_GROUP_ID'), message_thread_id=os.getenv('TOPIC_THREAD_ID'),
-                                 photo=callback.message.photo[-1].file_id, caption=text)
-        await sol_bot.send_photo(chat_id=os.getenv('COLLECTION_CHANNEL_ID'), photo=callback.message.photo[-1].file_id,
-                                 caption=text)
+        photo_id = callback.message.photo[-1].file_id
+        await queue.add_post_to_queue(session, user_id=user_id, type='photo', text=text, file_id=photo_id, target=True)
+
     elif callback.message.document:
-        await sol_bot.send_document(chat_id=os.getenv('TOPIC_GROUP_ID'), message_thread_id=os.getenv('TOPIC_THREAD_ID'),
-                                    document=callback.message.document.file_id, caption=text)
-        await sol_bot.send_document(chat_id=os.getenv('COLLECTION_CHANNEL_ID'),
-                                    document=callback.message.document.file_id,
-                                    caption=text)
+        document_id = callback.message.document.file_id
+        await queue.add_post_to_queue(session, user_id=user_id, type='document', text=text, file_id=document_id,
+                                      target=True)
 
     await callback.message.delete_reply_markup()
     await callback.message.edit_caption(caption=f'{text}\n\n<b>[Published to Collection]</b>')
 
-    user_id = callback.data.split()[1]
-    try:
-        await sol_bot.send_message(chat_id=user_id, text=choice(phrases.user_notification_phrases['Collection']))
-    except TelegramForbiddenError:
-        pass
     await callback.answer()
 
 

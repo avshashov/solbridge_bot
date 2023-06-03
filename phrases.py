@@ -192,11 +192,12 @@ order_phrases = {
              "\n\nWe will make everything and will give personally to you." \
              "\n\nIf you are interested, please press the button “Order the Photo Album”",
 
-    'book': "Currently, we are offering the 2nd edition of the PCS Book, "
-            "featuring the best photos from the 1st and 2nd seasons of the Photography Club."
-            "\n\nThis book is a limited edition and exclusive to our customers." \
-            "\n\nThe current price for one book with 95 pages of photos is 70.000 ₩." \
-            "\n\nWe will take care of everything and personally deliver the book to you." \
+    'book': "Second edition of the best photos for the spring 2023 semester. "
+            "We have painstakingly collected the best pictures, "
+            "carefully arranging them in a book so that you can remember "
+            "again the best moments of your life in South Korea."
+            "\n\nThis is the last project of our president and vice president before they leave the club."
+            "\n\nPrice for 90 pages is 80.000 ₩"
             "\n\nIf you are interested, please click the button “Order the PCS Book“.",
 
     'exists_album': 'Sorry, but according to my data, you already applied for Photoalbum, '

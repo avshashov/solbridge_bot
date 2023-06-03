@@ -13,8 +13,7 @@ from handlers.orders import router as orders_router
 from database.models import Base
 from middlewares.session_db import SessionMiddleware
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 sol_bot = SingleBot()
 

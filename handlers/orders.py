@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import phrases
+import media_book
 from bot import SingleBot
 from database.orders import order_exists_db, order_message_for_admin_db, create_order_db, cancel_order_by_user_db
 from database.pre_orders import preorder_exists, create_preorder
@@ -64,6 +65,16 @@ async def press_photoalbum_or_book(message: types.Message):
         await message.answer(text=text, reply_markup=callback_buttons.order_photo_album_kb())
     elif message.text == 'PCS Book':
         text = phrases.order_phrases['book']
+        await message.answer_media_group(media=[
+            types.InputMediaPhoto(
+                media=media_book.book_photos[0]),
+            types.InputMediaPhoto(
+                media=media_book.book_photos[1]),
+            types.InputMediaPhoto(
+                media=media_book.book_photos[2]),
+            types.InputMediaPhoto(
+                media=media_book.book_photos[3]),
+        ])
         await message.answer(text=text, reply_markup=callback_buttons.order_book_kb())
 
 

@@ -2,10 +2,9 @@ import os
 from random import choice
 
 from aiogram import Router, types, F
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from dotenv import load_dotenv
 
 from bot import SingleBot
 from keybords import default_buttons, callback_buttons
@@ -27,7 +26,6 @@ class Loader(StatesGroup):
     edit_author_state = State()
 
 
-load_dotenv()
 sol_bot = SingleBot()
 router = Router()
 
@@ -42,13 +40,13 @@ async def help_command(message: types.Message):
     await message.answer(phrases.help_phrase, reply_markup=default_buttons.main_menu_kb())
 
 
-@router.message(Text(text=['Upload photo']))
+@router.message(F.text == 'Upload photo')
 async def upload_photo(message: types.Message, state: FSMContext):
     await state.set_state(Loader.upload_state)
     await message.answer(choice(phrases.upload_photo_phrases), reply_markup=default_buttons.cancel_kb())
 
 
-@router.message(Text(text=['Cancel']))
+@router.message(F.text == 'Cancel')
 async def cancel(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer('Canceled', reply_markup=default_buttons.main_menu_kb())
@@ -94,11 +92,10 @@ async def confirm_category(callback: types.CallbackQuery, state: FSMContext):
         category = await state.get_data()
         await callback.message.edit_text(f'Selected: {category["category"]}')
         await callback.message.answer(choice(phrases.location_phrases))
-        await callback.answer()
     elif callback.data == 'Back':
         await callback.message.edit_text(text='Choose a category from the list below:',
                                          reply_markup=callback_buttons.category_kb())
-        await callback.answer()
+    await callback.answer()
 
 
 @router.message(Loader.category_state)
@@ -167,10 +164,14 @@ async def send_photo_to_group(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     user_id = callback.from_user.id
     if data['file'] == 'document':
-        await sol_bot.send_document(chat_id=os.getenv('ADMIN_PHOTOS'), document=data['file_id'], caption=data['text'],
+        await sol_bot.send_document(chat_id=os.getenv('ADMIN_PHOTOS'),
+                                    document=data['file_id'],
+                                    caption=data['text'],
                                     reply_markup=callback_buttons.admin_kb(user_id))
     elif data['file'] == 'photo':
-        await sol_bot.send_photo(chat_id=os.getenv('ADMIN_PHOTOS'), photo=data['file_id'], caption=data['text'],
+        await sol_bot.send_photo(chat_id=os.getenv('ADMIN_PHOTOS'),
+                                 photo=data['file_id'],
+                                 caption=data['text'],
                                  reply_markup=callback_buttons.admin_kb(user_id))
 
     await state.clear()
@@ -239,11 +240,10 @@ async def confirm_category(callback: types.CallbackQuery, state: FSMContext):
         category = await state.get_data()
         await callback.message.edit_text(f'Selected: {category["category"]}',
                                          reply_markup=callback_buttons.edit_message_kb())
-        await callback.answer()
     elif callback.data == 'Back':
         await callback.message.edit_text(text='Choose a category from the list below:',
                                          reply_markup=callback_buttons.category_kb())
-        await callback.answer()
+    await callback.answer()
 
 
 @router.message(Loader.edit_location_state)
@@ -291,12 +291,12 @@ async def show_message(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-@router.message(Text(text=['Help']))
+@router.message(F.text == 'Help')
 async def help_button(message: types.Message):
     await message.answer(phrases.help_phrase, reply_markup=default_buttons.main_menu_kb())
 
 
-def text_for_message(data: dict) -> str:
+def text_for_message(data: dict[str]) -> str:
     text = f'<b>Description</b>: {data["description"]}' \
            f'\n<b>Category</b>: {data["category"]}' \
            f'\n<b>Location</b>: {data["location"]}' \

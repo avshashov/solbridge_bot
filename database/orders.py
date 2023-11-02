@@ -5,14 +5,19 @@ from database.models import Users, Orders
 from utils import get_hash
 
 
-async def order_exists_db(session: AsyncSession, user_id, product) -> int | None:
-    order = (await session.execute(select(Orders.order_id).where(Orders.user_id == user_id, Orders.product == product,
-                                                                 Orders.open == True,
-                                                                 Orders.paid == False))).first()
-    return order
+async def order_exists_db(session: AsyncSession, user_id: int, product: str) -> int | None:
+    stmt = (
+        select(Orders.order_id).
+        where(Orders.user_id == user_id,
+              Orders.product == product,
+              Orders.open.is_(True),
+              Orders.paid.is_(False))
+    )
+    order = await session.execute(stmt)
+    return order.first()
 
 
-async def create_order_db(session: AsyncSession, user_id, product, **kwargs) -> int:
+async def create_order_db(session: AsyncSession, user_id: int, product: str, **kwargs) -> str:
     while True:
         try:
             hash_id = get_hash()
@@ -23,28 +28,41 @@ async def create_order_db(session: AsyncSession, user_id, product, **kwargs) -> 
             continue
 
 
-async def cancel_order_by_user_db(session: AsyncSession, user_id, product) -> int:
-    order_id = (
-        await session.execute(update(Orders).where(
-            Orders.user_id == user_id,
-            Orders.product == product,
-            Orders.open == True).values(open=False, canceled=True).returning(Orders.order_id))).fetchone()[0]
+async def cancel_order_by_user_db(session: AsyncSession, user_id: int, product: str) -> int:
+    stmt = (
+        update(Orders).
+        where(Orders.user_id == user_id,
+              Orders.product == product,
+              Orders.open.is_(True)).
+        values(open=False, canceled=True).
+        returning(Orders.order_id)
+    )
+    order_id = await session.execute(stmt)
     await session.commit()
 
-    return order_id
+    return order_id.fetchone()[0]
 
 
-async def cancel_order_by_admin_db(session: AsyncSession, order_id) -> int:
-    user_id = (await session.execute(update(Orders).where(
-        Orders.order_id == order_id).values(open=False, canceled=True).returning(Orders.user_id))).fetchone()[0]
+async def cancel_order_by_admin_db(session: AsyncSession, order_id: str) -> int:
+    stmt = (
+        update(Orders).
+        where(Orders.order_id == order_id).
+        values(open=False, canceled=True).
+        returning(Orders.user_id)
+    )
+    user_id = await session.execute(stmt)
     await session.commit()
 
-    return user_id
+    return user_id.fetchone()[0]
 
 
-async def order_message_for_admin_db(session: AsyncSession, order_id, product) -> str:
-    users_order = (await session.execute(select(Orders.url, Orders.created_at, Users.name).join(Users).where(
-        Orders.order_id == order_id))).first()
+async def order_message_for_admin_db(session: AsyncSession, order_id: str, product: str) -> str:
+    stmt = (
+        select(Orders.url, Orders.created_at, Users.name).
+        join(Users).
+        where(Orders.order_id == order_id)
+    )
+    users_order = (await session.execute(stmt)).first()
 
     text = f'\n<b>Order</b>: {order_id}' \
            f'\n<b>Product</b>: {product}' \
@@ -54,85 +72,114 @@ async def order_message_for_admin_db(session: AsyncSession, order_id, product) -
     return text
 
 
-async def get_orders_db(session: AsyncSession, product, open, paid, canceled) -> list:
-    orders = (await session.execute(select(Orders.order_id).where(Orders.product == product,
-                                                                  Orders.open == open, Orders.paid == paid,
-                                                                  Orders.canceled == canceled))).all()
-    return orders
+async def get_orders_db(session: AsyncSession, product: str, open: bool, paid: bool, canceled: bool) -> list:
+    stmt = (
+        select(Orders.order_id).
+        where(Orders.product == product,
+              Orders.open == open,
+              Orders.paid == paid,
+              Orders.canceled == canceled)
+    )
+    orders = (await session.execute(stmt)).all()
+    return list(orders)
 
 
-async def get_order_more_db(session: AsyncSession, order_id) -> str:
-    order = (await session.execute(select(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
-                                          Orders.created_at, Orders.url).join(Users).where(Orders.order_id ==
-                                                                                           order_id))).first()
+async def get_order_more_db(session: AsyncSession, order_id: str) -> str:
+    stmt = (
+        select(Orders.order_id,
+               Users.name,
+               Users.username,
+               Users.email,
+               Users.instagram,
+               Orders.created_at,
+               Orders.url).
+        join(Users).
+        where(Orders.order_id == order_id)
+    )
+    order = (await session.execute(stmt)).first()
 
     text = text_order(order)
     return text
 
 
-async def get_closed_orders_db(session: AsyncSession, product, canceled, paid=None) -> list:
+async def get_closed_orders_db(session: AsyncSession, product: str, canceled: bool, paid: bool | None = None) -> list:
+    params = {
+        Orders.product == product,
+        Orders.open.is_(False),
+        Orders.canceled == canceled
+    }
     if paid:
-        query = select(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
-                       Orders.created_at, Orders.url).join(Users).where(Orders.product == product,
-                                                                        Orders.open == False,
-                                                                        Orders.paid == paid,
-                                                                        Orders.canceled == canceled)
-    else:
-        query = select(Orders.order_id, Users.name, Users.username, Users.email, Users.instagram,
-                       Orders.created_at, Orders.url).join(Users).where(Orders.product == product,
-                                                                        Orders.open == False,
-                                                                        Orders.canceled == canceled)
-    orders = (await session.execute(query)).all()
+        params.add(Orders.paid == paid)
 
-    result = []
-    if orders:
-        for order in orders:
-            text = text_order(order)
-            result.append(text)
+    stmt = (
+        select(Orders.order_id,
+               Users.name,
+               Users.username,
+               Users.email,
+               Users.instagram,
+               Orders.created_at,
+               Orders.url).
+        join(Users).
+        where(*params)
+    )
+    orders = (await session.execute(stmt)).all()
+
+    result = [text_order(order) for order in orders]
     return result
 
 
-async def approve_the_order_db(session: AsyncSession, order_id) -> int:
-    user_id = (await session.execute(update(Orders).where(Orders.order_id == order_id).values(paid=True).returning(
-        Orders.user_id))).fetchone()[0]
+async def approve_the_order_db(session: AsyncSession, order_id: str) -> int:
+    stmt = (
+        update(Orders).
+        where(Orders.order_id == order_id).
+        values(paid=True).
+        returning(Orders.user_id)
+    )
+    user_id = (await session.execute(stmt)).fetchone()[0]
 
     await session.commit()
     return user_id
 
 
-async def complete_the_order_db(session: AsyncSession, order_id) -> None:
-    await session.execute(update(Orders).where(Orders.order_id == order_id).values(open=False))
+async def complete_the_order_db(session: AsyncSession, order_id: str) -> None:
+    stmt = (
+        update(Orders).
+        where(Orders.order_id == order_id).
+        values(open=False)
+    )
+    await session.execute(stmt)
     await session.commit()
 
 
-async def get_order_user_db(session: AsyncSession, order_id) -> int:
-    user_id = (await session.execute(select(Orders.user_id).where(Orders.order_id == order_id))).first()
+async def get_order_user_db(session: AsyncSession, order_id: str) -> int:
+    stmt = select(Orders.user_id).where(Orders.order_id == order_id)
+    user_id = (await session.execute(stmt)).first()
     return user_id[0]
 
 
+def get_stmt_for_select_query(product: str, paid: bool) -> select:
+    stmt = (
+        select(Users.email).
+        join(Orders).
+        where(Orders.product == product,
+              Orders.open.is_(True),
+              Orders.paid.is_(paid))
+    )
+
+    return stmt
+
+
 async def get_emails_db(session: AsyncSession) -> str:
-    paid_albums = (await session.execute(select(Users.email).join(Orders).
-                                         where(Orders.product == 'album',
-                                               Orders.open == True,
-                                               Orders.paid == True))).scalars().all()
+    paid_albums = (await session.execute(get_stmt_for_select_query(product='album', paid=True))).scalars().all()
     paid_albums = '\n'.join(paid_albums) if paid_albums else 'The list is empty'
 
-    unpaid_albums = (await session.execute(select(Users.email).join(Orders).
-                                           where(Orders.product == 'album',
-                                                 Orders.open == True,
-                                                 Orders.paid == False))).scalars().all()
+    unpaid_albums = (await session.execute(get_stmt_for_select_query(product='album', paid=False))).scalars().all()
     unpaid_albums = '\n'.join(unpaid_albums) if unpaid_albums else 'The list is empty'
 
-    paid_books = (await session.execute(select(Users.email).join(Orders).
-                                        where(Orders.product == 'book',
-                                              Orders.open == True,
-                                              Orders.paid == True))).scalars().all()
+    paid_books = (await session.execute(get_stmt_for_select_query(product='book', paid=True))).scalars().all()
     paid_books = '\n'.join(paid_books) if paid_books else 'The list is empty'
 
-    unpaid_books = (await session.execute(select(Users.email).join(Orders).
-                                          where(Orders.product == 'book',
-                                                Orders.open == True,
-                                                Orders.paid == False))).scalars().all()
+    unpaid_books = (await session.execute(get_stmt_for_select_query(product='book', paid=False))).scalars().all()
     unpaid_books = '\n'.join(unpaid_books) if unpaid_books else 'The list is empty'
 
     text = f'<b>Email list</b>' \

@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  bot:
+    image: temandriys/solbridge_bot:1.3
+    container_name: solbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    container_name: solbot_db
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${NAME_DB}
+      - POSTGRES_USER=${USER_DB}
+      - POSTGRES_PASSWORD=${PASSWORD_DB}
+
+networks:
+  default:
+    driver: bridge
+    name: net
+
+volumes:
+  pgdata:

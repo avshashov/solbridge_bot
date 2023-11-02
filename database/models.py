@@ -7,8 +7,9 @@ class Base(DeclarativeBase):
     pass
 
 
-def create_tables(engine):
-    Base.metadata.create_all(engine)
+async def create_tables(engine):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 class Users(Base):

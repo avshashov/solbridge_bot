@@ -1,22 +1,17 @@
-import os
-
 from aiogram import Bot
-from dotenv import load_dotenv
+
+from config import SettingsBot
+
+settings_bot = SettingsBot()
 
 
-def singleton(class_):
-    instances = {}
-
-    def getinstance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
-
-    return getinstance
-
-
-@singleton
 class SingleBot(Bot):
+    _instances = None
+
+    def __new__(cls):
+        if not cls._instances:
+            cls._instances = object.__new__(cls)
+        return cls._instances
+
     def __init__(self):
-        load_dotenv()
-        super().__init__(token=os.getenv('TOKEN'), parse_mode='HTML')
+        super().__init__(token=settings_bot.token, parse_mode=settings_bot.parse_mode)

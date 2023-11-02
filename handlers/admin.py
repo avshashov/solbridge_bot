@@ -3,9 +3,7 @@ import os
 from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup
 from aiogram.exceptions import TelegramBadRequest
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import phrases
@@ -13,12 +11,6 @@ from bot import SingleBot
 from database import orders as db, queue
 from keybords import callback_buttons
 
-
-class OrderData(StatesGroup):
-    pass
-
-
-load_dotenv()
 sol_bot = SingleBot()
 router = Router()
 
@@ -120,8 +112,17 @@ async def back_open_closed_orders(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data.in_({'paid album', 'unpaid album', 'paid book', 'unpaid book', 'Back to orders',
-                                   'previous page', 'next page'}))
+@router.callback_query(F.data.in_(
+    {
+        'paid album',
+        'unpaid album',
+        'paid book',
+        'unpaid book',
+        'Back to orders',
+        'previous page',
+        'next page'
+    }
+))
 async def get_paid_unpaid_orders(callback: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     if callback.data == 'Back to orders':
         data = await state.get_data()

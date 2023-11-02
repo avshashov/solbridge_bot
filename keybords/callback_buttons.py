@@ -78,7 +78,7 @@ def anonymous_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def admin_kb(user_id) -> InlineKeyboardMarkup:
+def admin_kb(user_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Approve', callback_data=f'Publish {user_id}'))
     builder.add(InlineKeyboardButton(text='Publish to Collection', callback_data=f'Collection {user_id}'))
@@ -144,7 +144,7 @@ def orders_category_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def open_closed_orders_kb(product) -> InlineKeyboardMarkup:
+def open_closed_orders_kb(product: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Open', callback_data=f'open {product}'))
     builder.add(InlineKeyboardButton(text='Closed', callback_data=f'closed {product}'))
@@ -153,7 +153,7 @@ def open_closed_orders_kb(product) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def paid_unpaid_orders_kb(product) -> InlineKeyboardMarkup:
+def paid_unpaid_orders_kb(product: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Paid', callback_data=f'paid {product}'))
     builder.add(InlineKeyboardButton(text='Unpaid', callback_data=f'unpaid {product}'))
@@ -162,7 +162,7 @@ def paid_unpaid_orders_kb(product) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def closed_orders_kb(product) -> InlineKeyboardMarkup:
+def closed_orders_kb(product: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='Completed', callback_data=f'completed {product}'))
     builder.add(InlineKeyboardButton(text='Canceled', callback_data=f'canceled {product}'))
@@ -171,7 +171,7 @@ def closed_orders_kb(product) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def orders_kb(product, orders, count, offset) -> InlineKeyboardMarkup:
+def orders_kb(product: str, orders: list, count: int, offset: int) -> InlineKeyboardMarkup:
     step = offset + 5
     step = count if step > count else step
     pages = math.ceil(count / 5)
@@ -195,7 +195,7 @@ def orders_kb(product, orders, count, offset) -> InlineKeyboardMarkup:
     return keyboard
 
 
-def unpaid_order_more_kb(order_id) -> InlineKeyboardMarkup:
+def unpaid_order_more_kb(order_id: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='✅ Approve the order', callback_data=f'Approve {order_id}'))
     builder.add(InlineKeyboardButton(text='❌ Cancel the order', callback_data=f'Cancel {order_id}'))
@@ -204,7 +204,7 @@ def unpaid_order_more_kb(order_id) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def paid_order_more_kb(order_id) -> InlineKeyboardMarkup:
+def paid_order_more_kb(order_id: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='✅ Complete the order', callback_data=f'Complete {order_id}'))
     builder.add(InlineKeyboardButton(text='📨 Notify of readiness', callback_data=f'Notify {order_id}'))
@@ -220,7 +220,7 @@ def back_orders() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def pre_order_choice_kb(product) -> InlineKeyboardMarkup:
+def pre_order_choice_kb(product: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text='I will definitely buy it', callback_data=f'buy {product}'))
     builder.add(InlineKeyboardButton(text='I will think about it', callback_data=f'think {product}'))

@@ -1,20 +1,31 @@
 import os
 
 from aiogram import Router, types, F
-from aiogram.filters import Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
+from dotenv import load_dotenv
 
 import phrases
-import media_book
 from bot import SingleBot
-from database.orders import order_exists_db, order_message_for_admin_db, create_order_db, cancel_order_by_user_db
+from config import SettingsPhoto
+from database.orders import (
+    order_exists_db,
+    order_message_for_admin_db,
+    create_order_db,
+    cancel_order_by_user_db
+)
 from database.pre_orders import preorder_exists, create_preorder
-from database.users import user_exists_db, get_user_info_db, create_user_db, update_user_db
+from database.users import (
+    user_exists_db,
+    get_user_info_db,
+    create_user_db,
+    update_user_db
+)
 from keybords import default_buttons, callback_buttons
 from keybords.callback_buttons import pre_order_choice_kb
+
+load_dotenv()
 
 
 class UserData(StatesGroup):
@@ -27,13 +38,12 @@ class UserData(StatesGroup):
     cancel_order_state = State()
 
 
-load_dotenv()
 sol_bot = SingleBot()
 router = Router()
+photo_settings = SettingsPhoto()
 
 
-###
-@router.message(Text(text=['Photo Album']))
+@router.message(F.text == 'Photo Album')
 async def press_photo_album(message: types.Message, session: AsyncSession):
     text = 'We will begin offering the photo album with 20 of your photos' \
            ' to preserve your memories starting on June 10th. ' \
@@ -56,8 +66,6 @@ async def set_order_status(callback: types.CallbackQuery, session: AsyncSession)
     await callback.answer()
 
 
-###
-
 @router.message(F.text.in_({'Photo Album', 'PCS Book'}))
 async def press_photoalbum_or_book(message: types.Message):
     if message.text == 'Photo Album':
@@ -67,13 +75,13 @@ async def press_photoalbum_or_book(message: types.Message):
         text = phrases.order_phrases['book']
         await message.answer_media_group(media=[
             types.InputMediaPhoto(
-                media=media_book.book_photos[0]),
+                media=photo_settings.photo_1),
             types.InputMediaPhoto(
-                media=media_book.book_photos[1]),
+                media=photo_settings.photo_2),
             types.InputMediaPhoto(
-                media=media_book.book_photos[2]),
+                media=photo_settings.photo_3),
             types.InputMediaPhoto(
-                media=media_book.book_photos[3]),
+                media=photo_settings.photo_4),
         ])
         await message.answer(text=text, reply_markup=callback_buttons.order_book_kb())
 
@@ -109,7 +117,7 @@ async def order_photo_album(callback: types.CallbackQuery, state: FSMContext, se
     await callback.answer()
 
 
-@router.message(UserData.cancel_order_state, Text(text=['Undo Purchase']))
+@router.message(UserData.cancel_order_state, F.text == 'Undo Purchase')
 async def cancel_order(message: types.Message, state: FSMContext, session: AsyncSession):
     product = await state.get_data()
     order_id = await cancel_order_by_user_db(session, user_id=message.from_user.id, product=product['product'])
@@ -143,8 +151,13 @@ async def get_user_name(message: types.Message, state: FSMContext, session: Asyn
     await state.update_data(instagram=message.text)
     await message.reply(text='Thanks')
     data = await state.get_data()
-    await create_user_db(session, user_id=message.from_user.id, name=data['name'], username=message.from_user.username,
-                         email=data['email'], instagram=data['instagram'])
+    await create_user_db(session,
+                         user_id=message.from_user.id,
+                         name=data['name'],
+                         username=message.from_user.username,
+                         email=data['email'],
+                         instagram=data['instagram'])
+
     await message.answer(text=f'Please check all your information:'
                               f'{text_user_info(data["name"], data["email"], data["instagram"])}',
                          reply_markup=callback_buttons.change_data_kb())
@@ -188,7 +201,8 @@ async def return_to_selected_category(callback: types.CallbackQuery, session: As
 
 
 @router.callback_query(F.data == 'Next')
-async def request_user_url_or_create_book_order(callback: types.CallbackQuery, state: FSMContext,
+async def request_user_url_or_create_book_order(callback: types.CallbackQuery,
+                                                state: FSMContext,
                                                 session: AsyncSession):
     data = await state.get_data()
     if data['product'] == 'album':
